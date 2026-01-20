@@ -6,6 +6,7 @@ import path from 'path';
 const isTest = process.env.VITEST === 'true';
 
 export default defineConfig({
+  base: '/markdown-to-word/',
   plugins: [react()],
   test: {
     environment: 'jsdom',
