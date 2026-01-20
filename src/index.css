@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 min-h-screen;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    @apply bg-primary-200 text-primary-900;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-600 text-white
+           hover:bg-primary-700 active:bg-primary-800
+           focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-gray-700 border border-gray-300
+           hover:bg-gray-50 active:bg-gray-100
+           focus:ring-gray-500;
+  }
+
+  .btn-ghost {
+    @apply btn text-gray-600
+           hover:bg-gray-100 active:bg-gray-200
+           focus:ring-gray-500;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-300 bg-white
+           text-gray-900 placeholder-gray-400
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200
+           transition-shadow duration-200 ease-out
+           hover:shadow-md;
+  }
+
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs font-medium text-white
+           bg-gray-900 rounded shadow-lg
+           opacity-0 invisible
+           transition-all duration-200 ease-out
+           group-hover:opacity-100 group-hover:visible;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.400') transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.gray.400');
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: theme('colors.gray.500');
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+}
+
+/* Word 风格预览样式 */
+.word-preview {
+  font-family: 'Noto Serif SC', 'SimSun', serif;
+  font-size: 12pt;
+  line-height: 1.5;
+  color: #000000;
+}
+
+.word-preview h1 {
+  font-size: 16pt;
+  font-weight: 700;
+  margin-bottom: 12pt;
+  page-break-after: avoid;
+}
+
+.word-preview h2 {
+  font-size: 14pt;
+  font-weight: 600;
+  margin-bottom: 10pt;
+  margin-top: 18pt;
+  page-break-after: avoid;
+}
+
+.word-preview h3 {
+  font-size: 13pt;
+  font-weight: 600;
+  margin-bottom: 8pt;
+  margin-top: 14pt;
+}
+
+.word-preview p {
+  margin-bottom: 8pt;
+  text-align: justify;
+}
+
+.word-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12pt 0;
+  page-break-inside: avoid;
+}
+
+.word-preview th,
+.word-preview td {
+  border: 1pt solid #000000;
+  padding: 4pt 8pt;
+  vertical-align: top;
+}
+
+.word-preview th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+  text-align: left;
+}
+
+.word-preview code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background-color: #f5f5f5;
+  padding: 2pt 4pt;
+  border-radius: 2pt;
+  font-size: 10pt;
+}
+
+.word-preview pre {
+  background-color: #f5f5f5;
+  padding: 12pt;
+  border-radius: 0;
+  overflow-x: auto;
+  margin: 12pt 0;
+}
+
+.word-preview pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Code highlighting */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #f5f5f5;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #65737e;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal {
+  color: #c594c5;
+}
+
+.hljs-string,
+.hljs-section,
+.hljs-link {
+  color: #99c794;
+}
+
+.hljs-number {
+  color: #f99157;
+}
+
+.line-number {
+  display: inline-block;
+  width: 40px;
+  color: #999999;
+  text-align: right;
+  margin-right: 10px;
+  user-select: none;
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .word-preview {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  .word-preview h1,
+  .word-preview h2,
+  .word-preview h3 {
+    page-break-after: avoid;
+  }
+
+  .word-preview table,
+  .word-preview figure {
+    page-break-inside: avoid;
+  }
+}

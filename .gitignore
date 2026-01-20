@@ -1,0 +1,34 @@
+# Helper files
+task.md
+implementation_plan.md
+walkthrough.md
+
+# Dependencies
+node_modules/
+
+# Production
+dist/
+dist-ssr/
+
+# Local env files
+.env.local
+.env.*.local
+
+# Editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
