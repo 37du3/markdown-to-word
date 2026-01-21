@@ -20,13 +20,13 @@
 
 ### 在线使用
 
-直接访问：[https://your-username.github.io/markdown-to-word](https://your-username.github.io/markdown-to-word)
+直接访问：[https://37du3.github.io/markdown-to-word/](https://37du3.github.io/markdown-to-word/)
 
 ### 本地运行
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/markdown-to-word.git
+git clone https://github.com/37du3/markdown-to-word.git
 cd markdown-to-word
 
 # 安装依赖
@@ -145,5 +145,5 @@ MIT License - 详见 [LICENSE](LICENSE) 文件。
 
 ## 联系方式
 
-- 项目地址：[https://github.com/your-username/markdown-to-word](https://github.com/your-username/markdown-to-word)
-- 问题反馈：[Issues](https://github.com/your-username/markdown-to-word/issues)
+- 项目地址：[https://github.com/37du3/markdown-to-word](https://github.com/37du3/markdown-to-word)
+- 问题反馈：[Issues](https://github.com/37du3/markdown-to-word/issues)
