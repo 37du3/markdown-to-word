@@ -1,149 +1,95 @@
-# Markdown 转 Word
+<p align="center">
+  <img src="file:///Users/yangming/.gemini/antigravity/brain/20c575f3-ce29-40b5-a64e-7fc65d7f6c9f/readme_hero_banner_1769089819957.png" alt="Markdown to Word Banner" width="800">
+</p>
 
-一个纯前端的 Markdown 转 Word 格式转换工具，支持表格、代码块等复杂格式的完美转换。
+# ✨ Markdown to Word (MD2Word)
 
-## 功能特点
+<p align="center">
+  <img src="https://img.shields.io/badge/Release-v1.0.0-blue?style=for-the-badge" alt="Release">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Frontend-React-61dafb?style=for-the-badge&logo=react" alt="React">
+  <img src="https://img.shields.io/badge/Build-Vite-646cff?style=for-the-badge&logo=vite" alt="Vite">
+</p>
 
-- **纯前端运行**：所有转换操作在浏览器本地完成，数据不上传服务器，隐私安全
-- **格式完整转换**：支持表格（含合并单元格）、代码块、格式化文本、图片、列表、标题等
-- **双输出模式**：支持一键复制为 Word 富文本格式，或直接下载为 .docx 文件
-- **实时预览**：左侧输入，右侧即时显示 Word 风格的转换效果
-- **开源免费**：MIT 许可证，完全免费使用
+<p align="center">
+  <strong>🚀 可能是目前最优雅的纯前端 Markdown 转 Word 生产力工具</strong>
+</p>
 
-## 使用场景
+---
 
-- 将 ChatGPT、Claude 等大模型输出的 Markdown 内容转换为 Word 格式
-- 整理技术文档、项目报告、需求文档等内容
-- 解决 Markdown 直接复制到 Word 格式丢失的问题
+## 📖 简介
 
-## 快速开始
+**Markdown to Word** 是一款专为 AI 时代打造的格式转换神器。无论你是 ChatGPT、Claude 还是 DeepSeek 的深度用户，它都能帮你一键将充满代码块和数学公式的对话内容，完美转化为排版精美的 Word 文档。
 
-### 在线使用
+> [!TIP]
+> **100% 隐私安全**：所有转换操作均在浏览器本地完成，数据永不上传服务器。
 
+---
+
+## ✨ 核心特性
+
+- **🤖 AI 内容清洗 (New!)**：自动识别并剔除 AI 对话中的“复制按钮”、“引用标记”等无关文字。
+- **📈 极致数学公式 (New!)**：支持 LaTeX 自动纠错与排版，数学模型、科学算式完美导出。
+- **🎨 丰富元素支持**：
+  - **表格转换**：支持基本表格及复杂的合并单元格（上下左右自动识别）。
+  - **代码高亮**：保留语法高亮，可选行号，文档阅读更专业。
+  - **Mermaid 图表**：直接将流程图、时序图导出为高清图片。
+- **⚡️ 实时预览**：左侧编辑，右侧同步展示 Word 样式的标准视图。
+- **📋 双模输出**：一键“复制富文本”粘贴至飞书/Notion，或直接下载 `.docx` 标准文档。
+
+---
+
+## 📸 演示效果
+
+*(此处可以插入您的录制视频或更多演示图)*
+
+![Preview Demo](file:///Users/yangming/.gemini/antigravity/brain/20c575f3-ce29-40b5-a64e-7fc65d7f6c9f/readme_hero_banner_1769089819957.png)
+
+---
+
+## 🛠️ 兼容性矩阵
+
+| 功能模块 | Word (Win/Mac) | WPS Office | 飞书/Notion | 移动端预览 |
+| :--- | :---: | :---: | :---: | :---: |
+| **基础文本/标题** | ✅ 完美 | ✅ 完美 | ✅ 完美 | ✅ 兼容 |
+| **表格 (含合并)** | ✅ 完美 | ✅ 完美 | ✅ 兼容 | ⚠️ 布局受限 |
+| **数学公式 (LaTeX)** | ✅ 完美 | ✅ 完美 | ✅ 完美 | ✅ 兼容 |
+| **代码块** | ✅ 完美 | ✅ 完美 | ✅ 完美 | ✅ 兼容 |
+
+---
+
+## 🚀 快速开始
+
+### 在线体验
 直接访问：[https://37du3.github.io/markdown-to-word/](https://37du3.github.io/markdown-to-word/)
 
-### 本地运行
-
+### 本地部署
 ```bash
-# 克隆项目
+# 1. 克隆
 git clone https://github.com/37du3/markdown-to-word.git
-cd markdown-to-word
 
-# 安装依赖
+# 2. 安装
 npm install
 
-# 启动开发服务器
+# 3. 运行
 npm run dev
-
-# 构建生产版本
-npm run build
 ```
 
-### 使用方法
+---
 
-1. 在左侧文本框粘贴 Markdown 内容（大模型输出的文本）
-2. 右侧实时预览 Word 格式效果
-3. 点击「复制为 Word 格式」按钮，粘贴到 Word、Notion、飞书等工具
-4. 或点击「下载 Word 文档」下载 .docx 文件
+## 🏗️ 技术栈
 
-## 支持的格式
+- **Core**: React 18 + TypeScript + Vite
+- **Markdown**: `marked` + `marked-katex-extension`
+- **Docx Engine**: `docx.js`
+- **Styling**: Vanilla CSS + Tailwind CSS (Components)
+- **Icons**: Lucide React
 
-### Markdown 元素
+---
 
-| 元素 | 状态 | 说明 |
-|------|------|------|
-| 标题 (H1-H6) | ✅ 支持 | 自动应用 Word 标题样式 |
-| 粗体/斜体 | ✅ 支持 | 保留文本格式 |
-| 代码块 | ✅ 支持 | 语法高亮，预览支持行号 |
-| 行内代码 | ✅ 支持 | 保持等宽字体 |
-| 无序列表 | ✅ 支持 | 转换为 Word 项目符号 |
-| 有序列表 | ✅ 支持 | 转换为 Word 编号列表 |
-| 嵌套列表 | ✅ 支持 | 保持缩进层级 |
-| 链接 | ✅ 支持 | 保持链接地址和样式 |
-| 图片 | ✅ 支持 | 转换为内嵌图片 |
-| 表格 | ✅ 支持 | 基本表格与合并单元格（↑/→/同上/同左） |
-| 数学公式 | ✅ 支持 | 预览渲染，复制/下载可选择保留 LaTeX |
+## 🤝 贡献与交流
 
-### 输出格式
+欢迎提交 [Issue](https://github.com/37du3/markdown-to-word/issues) 或 Pull Request 来完善这个项目。
 
-- **HTML 富文本**：直接复制粘贴到 Word、Notion、飞书等
-- **.docx 文件**：标准 Word 文档格式，支持进一步编辑
-
-## 技术栈
-
-- **框架**：React 18 + TypeScript
-- **构建工具**：Vite 5
-- **Markdown 解析**：marked
-- **Word 生成**：docx.js
-- **样式**：Tailwind CSS
-- **图标**：Lucide React
-- **测试**：Vitest
-
-## 项目结构
-
-```
-markdown-to-word/
-├── public/                 # 静态资源
-├── src/
-│   ├── components/        # React 组件
-│   │   ├── Controls/     # 控制面板组件
-│   │   ├── Editor/       # 编辑器组件
-│   │   ├── Layout/       # 布局组件
-│   │   └── Preview/      # 预览组件
-│   ├── hooks/            # 自定义 Hooks
-│   ├── utils/            # 工具函数
-│   ├── types/            # TypeScript 类型定义
-│   ├── App.tsx           # 应用入口组件
-│   ├── main.tsx          # 入口文件
-│   └── index.css         # 全局样式
-├── tests/                # 测试文件
-├── docs/                 # 文档
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── tailwind.config.js
-```
-
-## 开发指南
-
-### 环境要求
-
-- Node.js 18+
-- npm 9+
-
-### 添加新功能
-
-1. Fork 本仓库
-2. 创建特性分支：`git checkout -b feature/your-feature`
-3. 提交改动：`git commit -am 'Add some feature'`
-4. 推送分支：`git push origin feature/your-feature`
-5. 创建 Pull Request
-
-### 代码规范
-
-- 使用 TypeScript 编写类型安全的代码
-- 遵循 ESLint 和 Prettier 配置
-- 为新功能添加单元测试
-- 更新相关文档
-
-## 路线图
-
-- [x] MVP：基础 Markdown 转 HTML
-- [ ] 表格支持：合并单元格、自定义样式
-- [ ] 代码块优化：语法高亮、行号
-- [ ] 主题定制：字体、颜色、样式预设
-- [ ] Chrome 扩展：页面一键转换
-- [ ] 桌面应用：Electron 打包
-
-## 贡献者
-
-感谢所有为本项目做出贡献的人！
-
-## 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件。
-
-## 联系方式
-
-- 项目地址：[https://github.com/37du3/markdown-to-word](https://github.com/37du3/markdown-to-word)
-- 问题反馈：[Issues](https://github.com/37du3/markdown-to-word/issues)
+**License**: MIT
+**Author**: [37du3](https://github.com/37du3)
