@@ -1,6 +1,6 @@
 // 转换工具性能缓存
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ConversionResult } from '../../types';
+import type { ConversionStats } from '../../types';
 export class ConversionCache {
   private cache = new Map<string, CacheEntry>();
   private maxSize = 10;
@@ -34,7 +34,7 @@ export class ConversionCache {
 
     // 清理旧缓存
     if (this.cache.size >= this.maxSize) {
-      const oldestKey = this.cache.keys().next().value;
+      const oldestKey = this.cache.keys().next().value as string;
       this.cache.delete(oldestKey);
     }
 
@@ -66,6 +66,6 @@ export class ConversionCache {
 interface CacheEntry {
   html: string;
   docx?: Blob;
-  stats: any;
+  stats: ConversionStats;
   timestamp: number;
 }

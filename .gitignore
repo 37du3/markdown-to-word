@@ -32,3 +32,10 @@ pnpm-debug.log*
 
 # Testing
 coverage/
+
+
+# Agent/Misc
+.codex/
+docs/
+ui-ux-pro-max-skill/
+

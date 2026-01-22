@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, ImageRun } from 'docx';
 import type {
   MarkdownAST,
   MarkdownTokens,
@@ -7,6 +7,7 @@ import type {
   DocxDocumentOptions,
 } from '../../types';
 import { stripMathDelimiters } from '../math/MathText';
+import { MermaidRenderer } from './MermaidRenderer';
 
 export class DocxConverter {
   async convert(
@@ -15,7 +16,7 @@ export class DocxConverter {
     docxOptions?: DocxDocumentOptions
   ): Promise<{ success: boolean; docx?: Blob; error?: Error }> {
     try {
-      const children = this.buildDocumentChildren(ast, options);
+      const children = await this.buildDocumentChildren(ast, options);
 
       const doc = new Document({
         sections: [
@@ -37,21 +38,20 @@ export class DocxConverter {
     }
   }
 
-  buildDocumentChildren(ast: MarkdownAST, options: ConversionOptions): (Paragraph | Table)[] {
-    return ast.tokens
-      .map((token) => this.convertToken(token, options))
-      .flat()
-      .filter(Boolean) as (Paragraph | Table)[];
+  async buildDocumentChildren(ast: MarkdownAST, options: ConversionOptions): Promise<(Paragraph | Table)[]> {
+    const childrenPromises = ast.tokens.map((token) => this.convertToken(token, options));
+    const childrenArrays = await Promise.all(childrenPromises);
+    return childrenArrays.flat().filter(Boolean) as (Paragraph | Table)[];
   }
 
-  private convertToken(token: MarkdownTokens, options: ConversionOptions): (Paragraph | Table)[] {
+  private async convertToken(token: MarkdownTokens, options: ConversionOptions): Promise<(Paragraph | Table)[]> {
     switch (token.type) {
       case 'heading':
         return [this.convertHeading(token)];
       case 'paragraph':
         return [this.convertParagraph(token, options)];
       case 'code':
-        return [this.convertCodeBlock(token)];
+        return this.convertCodeBlock(token);
       case 'list':
         return this.convertList(token, options);
       case 'table':
@@ -85,11 +85,40 @@ export class DocxConverter {
     });
   }
 
-  private convertCodeBlock(token: MarkdownTokens): Paragraph {
-    return new Paragraph({
+  private async convertCodeBlock(token: MarkdownTokens): Promise<Paragraph[]> {
+    const code = token.text || '';
+    const language = token.lang || '';
+
+    // Handle Mermaid Diagrams
+    if (language === 'mermaid') {
+      try {
+        const { buffer, width, height } = await MermaidRenderer.renderToBuffer(code);
+
+        // Max width in Word (roughly) is around 600px (approx 6 inches)
+        // We'll constrain it if it's too huge, but Docx ImageRun usually uses EMUs or px.
+        // Let's use standard transformation.
+
+        return [new Paragraph({
+          children: [
+            new ImageRun({
+              data: buffer,
+              transformation: {
+                width: width,
+                height: height,
+              },
+            }),
+          ],
+        })];
+      } catch (error) {
+        console.warn('Failed to render mermaid diagram, falling back to code block', error);
+        // Fallback to normal code block logic
+      }
+    }
+
+    return [new Paragraph({
       text: token.text || '',
       style: 'Code',
-    });
+    })];
   }
 
   private convertList(token: MarkdownTokens, options: ConversionOptions): Paragraph[] {
@@ -108,6 +137,7 @@ export class DocxConverter {
     }
 
     const headerRow = new TableRow({
+      tableHeader: true,
       children: tableData.headers
         .map((cell, colIndex) => {
           if (options.table.enableMergedCells && cell.mergeWithPrevious) {
@@ -121,8 +151,13 @@ export class DocxConverter {
 
           return new TableCell({
             columnSpan: colSpan > 1 ? colSpan : undefined,
+            shading: {
+              fill: "E0E0E0", // Light gray header background
+              color: "auto",
+            },
             children: [
               new Paragraph({
+                alignment: "center", // Center headers usually
                 children: [
                   new TextRun({
                     text,
@@ -139,12 +174,23 @@ export class DocxConverter {
     });
 
     const bodyRows = tableData.rows.map((row, rowIndex) => {
+      // Banded Rows Logic
+      const isOddRow = rowIndex % 2 === 1;
+      const rowFill = isOddRow ? "F9F9F9" : "FFFFFF";
+
       return new TableRow({
         children: row.cells
           .map((cell, colIndex) => {
             if (options.table.enableMergedCells && cell.mergeWithPrevious) {
               return null;
             }
+
+            const cleanContent = cell.content.trim();
+            // Simple numeric heuristic: numbers, commas, decimals, percent
+            const isNumeric = /^[-+]?(\d{1,3}(,\d{3})*(\.\d+)?|\d+(\.\d+)?)%?$/.test(cleanContent);
+            const align = cell.align
+              ? (cell.align === 'right' ? "right" : cell.align === 'center' ? "center" : "left")
+              : (isNumeric ? "right" : "left"); // Default alignment
 
             const text = this.convertInlineText(cell.tokens || [], cell.content, options);
             const rowSpan = options.table.enableMergedCells
@@ -157,8 +203,13 @@ export class DocxConverter {
             return new TableCell({
               rowSpan: rowSpan > 1 ? rowSpan : undefined,
               columnSpan: colSpan > 1 ? colSpan : undefined,
+              shading: {
+                fill: rowFill,
+                color: "auto",
+              },
               children: [
                 new Paragraph({
+                  alignment: align as any,
                   children: [
                     new TextRun({
                       text,
@@ -176,6 +227,10 @@ export class DocxConverter {
 
     return new Table({
       rows: [headerRow, ...bodyRows],
+      width: {
+        size: 100,
+        type: "pct",
+      },
     });
   }
 

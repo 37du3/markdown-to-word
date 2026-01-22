@@ -3,6 +3,7 @@ import { marked } from 'marked';
 import markedKatex from 'marked-katex-extension';
 import type { MarkdownAST, MarkdownTokens } from '../../types';
 import { TableProcessor } from './TableProcessor';
+import { AICleaner } from './AICleaner';
 
 export class MarkdownParser {
   private marked: marked.Marked;
@@ -33,7 +34,8 @@ export class MarkdownParser {
     }
 
     try {
-      const tokens = this.marked.lexer(markdown).map((token) => {
+      const cleanedMarkdown = AICleaner.cleanAIArtifacts(markdown);
+      const tokens = this.marked.lexer(cleanedMarkdown).map((token) => {
         if (token.type === 'table') {
           return {
             ...token,

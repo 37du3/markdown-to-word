@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Copy, Download, Settings, RefreshCw, FileText } from 'lucide-react';
+import { RefreshCw, FileText } from 'lucide-react';
 import { MarkdownInput } from './components/Editor/MarkdownInput';
 import { WordPreview } from './components/Preview/WordPreview';
 import { Toolbar } from './components/Editor/Toolbar';
@@ -74,7 +74,14 @@ export function App() {
     setError(null);
 
     try {
-      const result = await convertToHtml(markdown, { code: { showLineNumbers } });
+      const result = await convertToHtml(markdown, {
+        code: {
+          showLineNumbers,
+          theme: 'light',
+          fontFamily: 'JetBrains Mono',
+          fontSize: 14,
+        },
+      });
 
       if (result.success && result.html) {
         setOutput(result.html);
@@ -95,7 +102,7 @@ export function App() {
 
   // 监听防抖后的输入变化
   React.useEffect(() => {
-    convert(debouncedInput);
+    void convert(debouncedInput);
   }, [debouncedInput, convert]);
 
   // 处理复制
@@ -107,7 +114,12 @@ export function App() {
       const mathOutput = keepLatex ? 'latex' : 'text';
       const htmlResult = await convertToHtml(input, {
         math: { output: mathOutput },
-        code: { showLineNumbers: false },
+        code: {
+          showLineNumbers: false,
+          theme: 'light',
+          fontFamily: 'JetBrains Mono',
+          fontSize: 14,
+        },
       });
       const htmlToCopy = htmlResult.success && htmlResult.html ? htmlResult.html : output;
       const plainText = keepLatex ? input : stripMathDelimiters(input);
@@ -203,11 +215,10 @@ export function App() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className={`text-xs px-2 py-1 rounded border ${
-                  showLineNumbers
-                    ? 'bg-gray-100 text-gray-700 border-gray-200'
-                    : 'bg-white text-gray-500 border-gray-200'
-                }`}
+                className={`text-xs px-2 py-1 rounded border ${showLineNumbers
+                  ? 'bg-gray-100 text-gray-700 border-gray-200'
+                  : 'bg-white text-gray-500 border-gray-200'
+                  }`}
                 onClick={() => setShowLineNumbers((value) => !value)}
                 aria-pressed={showLineNumbers}
               >
@@ -269,7 +280,7 @@ export function App() {
           <div className="px-4 py-3 bg-white border-t border-gray-200">
             <ControlPanel
               onCopy={handleCopy}
-              onDownload={handleDownload}
+              onDownload={() => void handleDownload()}
               isConverting={isConverting}
               conversionStats={stats || undefined}
               lastCopied={lastCopied}

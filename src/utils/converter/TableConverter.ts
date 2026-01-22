@@ -44,6 +44,15 @@ export class TableConverter {
     rowIndex?: number
   ): string {
     const tag = isHeader ? 'th' : 'td';
+    // Style: Header background or Banded Row background
+    let rowStyle = '';
+    if (isHeader) {
+      rowStyle = `background-color: #E0E0E0; font-weight: bold;`;
+    } else if (rowIndex !== undefined && rowIndex % 2 === 1) {
+      // Banded row effect for odd rows
+      rowStyle = `background-color: #F9F9F9;`;
+    }
+
     const cellsHtml = row.cells
       .map((cell, colIndex) => {
         if (options.table.enableMergedCells && cell.mergeWithPrevious) {
@@ -57,11 +66,19 @@ export class TableConverter {
         const colspan = shouldMerge
           ? this.calculateColspan(row.cells, colIndex)
           : cell.colspan || 1;
+
         const rowspanAttr = rowspan > 1 ? ` rowspan="${rowspan}"` : '';
         const colspanAttr = colspan > 1 ? ` colspan="${colspan}"` : '';
-        const align = cell.align || options.table.defaultAlign;
+
+        // Auto-detect numeric column for right alignment (simple heuristic)
+        // Check if content looks like a number/currency/percent
+        const cleanContent = cell.content.trim();
+        const isNumeric = /^[-+]?(\d{1,3}(,\d{3})*(\.\d+)?|\d+(\.\d+)?)%?$/.test(cleanContent);
+        const align = cell.align || (isNumeric ? 'right' : options.table.defaultAlign); // Prioritize cell align if explicit
+
         const content = renderInline ? renderInline(cell.tokens, cell.content) : cell.content;
-        return `<${tag}${rowspanAttr}${colspanAttr} style="border: 1px solid ${options.table.borderColor}; padding: 6pt; text-align: ${align};">${content}</${tag}>`;
+
+        return `<${tag}${rowspanAttr}${colspanAttr} style="border: 1px solid ${options.table.borderColor}; padding: 6pt; text-align: ${align}; ${rowStyle}">${content}</${tag}>`;
       })
       .join('');
 

@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 
 const store = new Map<string, string>();
 const localStorageMock = {
-  getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
+  getItem: (key: string) => (store.has(key) ? store.get(key) || null : null),
   setItem: (key: string, value: string) => {
     store.set(key, String(value));
   },
