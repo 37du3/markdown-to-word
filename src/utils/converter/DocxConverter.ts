@@ -72,18 +72,119 @@ export class DocxConverter {
   }
 
   private convertParagraph(token: MarkdownTokens, options: ConversionOptions): Paragraph {
-    const text = this.convertInlineText(token.tokens || [], token.text || '', options);
+    const runs = this.createRuns(token.tokens || [], options);
+
+    // Check if we need to apply paragraph-level font settings if runs are empty or generic?
+    // The runs will carry their own font/size. But we might want to ensure defaults.
+    // TextRun usually takes defaults from Paragraph style if not specified, 
+    // but here we specify explicit font/size in createRuns.
 
     return new Paragraph({
-      children: [
-        new TextRun({
-          text,
-          font: options.text.fontFamily,
-          size: options.text.fontSize * 2,
-        }),
-      ],
+      children: runs,
+      spacing: {
+        after: 120, // 8pt roughly
+        line: 240 * options.text.lineHeight,
+      },
+      alignment: "both", // justify
     });
   }
+
+  private createRuns(
+    tokens: MarkdownTokens[],
+    options: ConversionOptions,
+    modifiers: { bold?: boolean; italics?: boolean; strike?: boolean; color?: string; font?: string } = {}
+  ): TextRun[] {
+    if (!tokens || tokens.length === 0) return [];
+
+    return tokens.flatMap((token) => {
+      const currentFont = modifiers.font || options.text.fontFamily;
+      const currentSize = options.text.fontSize * 2; // half-points
+
+      if (token.type === 'text' || token.type === 'escape') {
+        return [new TextRun({
+          text: token.text || token.raw || '',
+          bold: modifiers.bold,
+          italics: modifiers.italics,
+          strike: modifiers.strike,
+          color: modifiers.color || "000000",
+          font: currentFont,
+          size: currentSize,
+        })];
+      }
+
+      if (token.type === 'strong') {
+        return this.createRuns(token.tokens || [], options, { ...modifiers, bold: true });
+      }
+
+      if (token.type === 'em') {
+        return this.createRuns(token.tokens || [], options, { ...modifiers, italics: true });
+      }
+
+      if (token.type === 'del') {
+        return this.createRuns(token.tokens || [], options, { ...modifiers, strike: true });
+      }
+
+      if (token.type === 'codespan') {
+        return [new TextRun({
+          text: token.text || '',
+          font: options.code.fontFamily,
+          size: options.code.fontSize * 2,
+          highlight: "lightGray", // simple highlight for inline code
+        })];
+      }
+
+      if (token.type === 'link') {
+        // For simplicity, we make link blue and underlined text. 
+        // Real Docx links need strict relationship IDs. 
+        // docx library `ExternalHyperlink` requires children.
+        // We can treat it as styled text for now or implement proper links.
+        // Let's implement styled text first as "ExternalHyperlink" can be complex in this recursive struct.
+        // Actually, `docx` has ExternalHyperlink.
+        // But returning TextRun[] excludes ExternalHyperlink (which is a Paragraph child, not TextRun sibling directly? No, it looks like it can be child of Paragraph).
+        // But createRuns returns TextRun[].
+        // We might need to return (TextRun | ExternalHyperlink)[].
+        // Let's stick to styled text for link for now to match strict return type or update return type.
+        return this.createRuns(token.tokens || [], options, { ...modifiers, color: options.text.linkColor.replace('#', '') });
+      }
+
+      if (token.type === 'image') {
+        // Inline images are hard. Skipping for now or TODO.
+        return [];
+      }
+
+      if (['math', 'inlineMath', 'inlineKatex', 'blockKatex'].includes(token.type)) {
+        const text = this.convertMathText(token, options);
+        return [new TextRun({
+          text,
+          bold: modifiers.bold,
+          italics: modifiers.italics,
+          font: currentFont,
+          size: currentSize,
+        })];
+      }
+
+      // Fallback for nested structural tokens or unknowns
+      if (token.tokens) {
+        return this.createRuns(token.tokens, options, modifiers);
+      }
+
+      // Fallback for raw text
+      if (token.text || token.raw) {
+        return [new TextRun({
+          text: token.text || token.raw || '',
+          bold: modifiers.bold,
+          italics: modifiers.italics,
+          font: currentFont,
+          size: currentSize,
+        })];
+      }
+
+      return [];
+    });
+  }
+
+  // Legacy method wrapper if needed, or we remove it. 
+  // We remove convertInlineText as it is replaced by createRuns.
 
   private async convertCodeBlock(token: MarkdownTokens): Promise<Paragraph[]> {
     const code = token.text || '';
@@ -125,7 +226,7 @@ export class DocxConverter {
     if (!token.items) return [];
     return token.items.map((item) =>
       new Paragraph({
-        text: this.convertInlineText(item.tokens || [], item.text || '', options),
+        children: this.createRuns(item.tokens || [], options),
       })
     );
   }
@@ -144,7 +245,6 @@ export class DocxConverter {
             return null;
           }
 
-          const text = this.convertInlineText(cell.tokens || [], cell.content, options);
           const colSpan = options.table.enableMergedCells
             ? this.calculateColspan(tableData.headers, colIndex)
             : cell.colspan || 1;
@@ -158,14 +258,7 @@ export class DocxConverter {
             children: [
               new Paragraph({
                 alignment: "center", // Center headers usually
-                children: [
-                  new TextRun({
-                    text,
-                    bold: true,
-                    font: options.text.fontFamily,
-                    size: options.text.fontSize * 2,
-                  }),
-                ],
+                children: this.createRuns(cell.tokens || [], options, { bold: true }),
               }),
             ],
           });
@@ -192,7 +285,6 @@ export class DocxConverter {
               ? (cell.align === 'right' ? "right" : cell.align === 'center' ? "center" : "left")
               : (isNumeric ? "right" : "left"); // Default alignment
 
-            const text = this.convertInlineText(cell.tokens || [], cell.content, options);
             const rowSpan = options.table.enableMergedCells
               ? this.calculateRowspan(tableData.rows, rowIndex, colIndex)
               : cell.rowspan || 1;
@@ -210,13 +302,7 @@ export class DocxConverter {
               children: [
                 new Paragraph({
                   alignment: align as any,
-                  children: [
-                    new TextRun({
-                      text,
-                      font: options.text.fontFamily,
-                      size: options.text.fontSize * 2,
-                    }),
-                  ],
+                  children: this.createRuns(cell.tokens || [], options),
                 }),
               ],
             });
@@ -232,39 +318,6 @@ export class DocxConverter {
         type: "pct",
       },
     });
-  }
-
-  private convertInlineText(
-    tokens: MarkdownTokens[],
-    fallbackText: string,
-    options: ConversionOptions
-  ): string {
-    if (!tokens || tokens.length === 0) {
-      return fallbackText;
-    }
-
-    return tokens
-      .map((token) => {
-        if (token.type === 'text') {
-          return token.text || '';
-        }
-        if (
-          token.type === 'math' ||
-          token.type === 'inlineMath' ||
-          token.type === 'inlineKatex' ||
-          token.type === 'blockKatex'
-        ) {
-          return this.convertMathText(token, options);
-        }
-        if (token.text) {
-          return token.text;
-        }
-        if (token.raw) {
-          return token.raw;
-        }
-        return '';
-      })
-      .join('');
   }
 
   private convertMathText(token: MarkdownTokens, options: ConversionOptions): string {
@@ -318,7 +371,7 @@ export class DocxConverter {
     return ['→', '同左'].includes(content.trim());
   }
 
-  private getHeadingLevel(level: number): HeadingLevel {
+  private getHeadingLevel(level: number): any {
     const levels = [
       HeadingLevel.HEADING_1,
       HeadingLevel.HEADING_2,
@@ -337,7 +390,7 @@ export class DocxConverter {
       title: options.title,
       creator: options.author,
       description: options.subject,
-      keywords: options.properties?.keywords?.join(', '),
+      keywords: options.keywords?.join(', '),
       created: options.createdAt,
       modified: options.modifiedAt,
     };
