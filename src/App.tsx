@@ -8,7 +8,7 @@ import { Header } from './components/Layout/Header';
 import { useDebounce } from './hooks/useDebounce';
 import { useConversion } from './hooks/useConversion';
 import type { ConversionStats, ConversionError } from './types';
-import { stripMathDelimiters } from './utils/math/MathText';
+
 
 export class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -110,8 +110,8 @@ export function App() {
     if (!output) return false;
 
     try {
-      const keepLatex = window.confirm('是否保留 LaTeX 格式？点击“确定”保留，点击“取消”转换为普通文本。');
-      const mathOutput = keepLatex ? 'latex' : 'text';
+      // const keepLatex = window.confirm('是否保留 LaTeX 格式？点击“确定”保留，点击“取消”转换为普通文本。');
+      const mathOutput = 'latex';
       const htmlResult = await convertToHtml(input, {
         math: { output: mathOutput },
         code: {
@@ -122,7 +122,12 @@ export function App() {
         },
       });
       const htmlToCopy = htmlResult.success && htmlResult.html ? htmlResult.html : output;
-      const plainText = keepLatex ? input : stripMathDelimiters(input);
+      // For plain text copy, we keep the original input which now has cleaned math if typed that way, 
+      // or we can use the input as is.
+      // Since MathProcessor cleans BEFORE parsing, the 'input' state here is raw from user.
+      // We might want to run MathProcessor on plain text too if users paste? 
+      // For now, simple copy logic:
+      const plainText = input;
       const result = await copy(htmlToCopy, plainText);
       if (result.success) {
         setLastCopied(true);
@@ -142,8 +147,8 @@ export function App() {
 
     try {
       const { saveAs } = await import('file-saver');
-      const keepLatex = window.confirm('是否保留 LaTeX 格式？点击“确定”保留，点击“取消”转换为普通文本。');
-      const mathOutput = keepLatex ? 'latex' : 'text';
+      // const keepLatex = window.confirm('是否保留 LaTeX 格式？点击“确定”保留，点击“取消”转换为普通文本。');
+      const mathOutput = 'latex'; // Always keep latex, optimized by MathProcessor
       const result = await convertToDocx(input, { math: { output: mathOutput } });
 
       if (result.success && result.docx) {

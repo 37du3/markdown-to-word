@@ -4,9 +4,10 @@ import markedKatex from 'marked-katex-extension';
 import type { MarkdownAST, MarkdownTokens } from '../../types';
 import { TableProcessor } from './TableProcessor';
 import { AICleaner } from './AICleaner';
+import { MathProcessor } from './MathProcessor';
 
 export class MarkdownParser {
-  private marked: marked.Marked;
+  private marked: any;
   private tableProcessor: TableProcessor;
 
   constructor() {
@@ -25,6 +26,7 @@ export class MarkdownParser {
   }
 
   parse(markdown: string): MarkdownAST {
+    // ... existing check ...
     if (!markdown || typeof markdown !== 'string') {
       return {
         type: 'root',
@@ -34,7 +36,12 @@ export class MarkdownParser {
     }
 
     try {
-      const cleanedMarkdown = AICleaner.cleanAIArtifacts(markdown);
+      // 1. Clean AI artifacts
+      let cleanedMarkdown = AICleaner.cleanAIArtifacts(markdown);
+
+      // 2. Process Math formulas
+      cleanedMarkdown = MathProcessor.process(cleanedMarkdown);
+
       const tokens = this.marked.lexer(cleanedMarkdown).map((token) => {
         if (token.type === 'table') {
           return {
@@ -46,7 +53,7 @@ export class MarkdownParser {
       });
       return {
         type: 'root',
-        tokens: tokens as MarkdownTokens,
+        tokens: tokens as MarkdownTokens[],
         raw: markdown,
       };
     } catch (error) {
@@ -59,14 +66,14 @@ export class MarkdownParser {
     }
   }
 
-  parseInline(markdown: string): MarkdownTokens {
+  parseInline(markdown: string): MarkdownTokens[] {
     if (!markdown || typeof markdown !== 'string') {
       return [];
     }
 
     try {
       const tokens = this.marked.lexer(markdown);
-      return tokens as MarkdownTokens;
+      return tokens as MarkdownTokens[];
     } catch (error) {
       console.error('Inline markdown parse error:', error);
       return [];
@@ -93,7 +100,7 @@ export class MarkdownParser {
       images: 0,
     };
 
-    const countTokens = (tokens: MarkdownTokens): void => {
+    const countTokens = (tokens: MarkdownTokens[]): void => {
       if (!tokens) return;
 
       for (const token of tokens) {
@@ -122,23 +129,23 @@ export class MarkdownParser {
         }
 
         if (token.tokens && Array.isArray(token.tokens)) {
-          countTokens(token.tokens as MarkdownTokens);
+          countTokens(token.tokens);
         }
 
         if (token.items && Array.isArray(token.items)) {
           token.items.forEach(item => {
             if (item.tokens) {
-              countTokens(item.tokens as MarkdownTokens);
+              countTokens(item.tokens);
             }
           });
         }
 
-        if (token.rows && Array.isArray(token.rows)) {
-          token.rows.forEach(row => {
+        if ((token as any).rows && Array.isArray((token as any).rows)) {
+          (token as any).rows.forEach((row: any) => {
             if (row && Array.isArray(row)) {
               row.forEach(cell => {
                 if (cell && cell.tokens) {
-                  countTokens(cell.tokens as MarkdownTokens);
+                  countTokens(cell.tokens as MarkdownTokens[]);
                 }
               });
             }
