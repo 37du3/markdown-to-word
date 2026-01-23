@@ -32,11 +32,26 @@ pnpm-debug.log*
 
 # Testing
 coverage/
+tests/
 
-
-# Agent/Misc
+# AI Tools and Skills
+.agent/
+.ai_skills/
 .codex/
+.claude/
 docs/
 ui-ux-pro-max-skill/
-
 temp_reference/
+
+# Test Files
+test_*.mjs
+test_*.ts
+test_*.js
+*.test.mjs
+*.test.ts
+
+# Temporary Files
+*.md~
+*.swp
+*.swo
+*~
