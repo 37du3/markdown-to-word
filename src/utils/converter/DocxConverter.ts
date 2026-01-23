@@ -131,6 +131,20 @@ export class DocxConverter {
     });
   }
 
+  private decodeHTMLEntities(text: string): string {
+    const entities: Record<string, string> = {
+      '&quot;': '"',
+      '&#34;': '"',
+      '&apos;': "'",
+      '&#39;': "'",
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      '&nbsp;': ' ',
+    };
+    return text.replace(/&[a-z]+;|&#\d+;/g, (entity) => entities[entity] || entity);
+  }
+
   private createRuns(
     tokens: MarkdownTokens[],
     options: ConversionOptions,
@@ -195,7 +209,7 @@ export class DocxConverter {
         const lines = content.split('\n');
         return lines.flatMap((line, i) => [
           new TextRun({
-            text: line,
+            text: this.decodeHTMLEntities(line),
             bold: modifiers.bold,
             italics: modifiers.italics,
             strike: modifiers.strike,
