@@ -44,48 +44,60 @@ export class DocxConverter {
     return childrenArrays.flat().filter(Boolean) as (Paragraph | Table)[];
   }
 
-  private async convertToken(token: MarkdownTokens, options: ConversionOptions): Promise<(Paragraph | Table)[]> {
+  private async convertToken(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Promise<(Paragraph | Table)[]> {
     switch (token.type) {
       case 'heading':
-        return [this.convertHeading(token)];
+        return [this.convertHeading(token, options, indentLevel)];
       case 'paragraph':
-        return [this.convertParagraph(token, options)];
+        return [this.convertParagraph(token, options, indentLevel)];
       case 'code':
-        return this.convertCodeBlock(token);
+        return this.convertCodeBlock(token, indentLevel);
       case 'list':
-        return this.convertList(token, options);
+        return this.convertList(token, options, indentLevel);
       case 'table':
-        return [this.convertTable(token, options)];
+        return [this.convertTable(token, options, indentLevel)];
+      case 'blockquote':
+        return this.convertBlockquote(token, options, indentLevel);
       default:
         return [];
     }
   }
 
-  private convertHeading(token: MarkdownTokens): Paragraph {
+  private convertHeading(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Paragraph {
     const level = token.depth || 1;
-    const text = token.text || '';
+    let runs = this.createRuns(token.tokens || [], options);
+
+    if (runs.length === 0 && token.text) {
+      runs = [new TextRun({
+        text: token.text,
+        bold: true,
+        font: options.text.fontFamily,
+        size: options.text.fontSize * 2,
+      })];
+    }
 
     return new Paragraph({
-      text,
+      children: runs,
       heading: this.getHeadingLevel(level),
+      indent: indentLevel > 0 ? { left: 720 * indentLevel } : undefined,
+      spacing: {
+        before: 240,
+        after: 120,
+      },
     });
   }
 
-  private convertParagraph(token: MarkdownTokens, options: ConversionOptions): Paragraph {
+  private convertParagraph(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Paragraph {
     const runs = this.createRuns(token.tokens || [], options);
-
-    // Check if we need to apply paragraph-level font settings if runs are empty or generic?
-    // The runs will carry their own font/size. But we might want to ensure defaults.
-    // TextRun usually takes defaults from Paragraph style if not specified, 
-    // but here we specify explicit font/size in createRuns.
 
     return new Paragraph({
       children: runs,
       spacing: {
-        after: 120, // 8pt roughly
+        after: 120,
         line: 240 * options.text.lineHeight,
       },
-      alignment: "both", // justify
+      alignment: "both",
+      indent: indentLevel > 0 ? { left: 720 * indentLevel } : undefined,
     });
   }
 
@@ -98,19 +110,7 @@ export class DocxConverter {
 
     return tokens.flatMap((token) => {
       const currentFont = modifiers.font || options.text.fontFamily;
-      const currentSize = options.text.fontSize * 2; // half-points
-
-      if (token.type === 'text' || token.type === 'escape') {
-        return [new TextRun({
-          text: token.text || token.raw || '',
-          bold: modifiers.bold,
-          italics: modifiers.italics,
-          strike: modifiers.strike,
-          color: modifiers.color || "000000",
-          font: currentFont,
-          size: currentSize,
-        })];
-      }
+      const currentSize = options.text.fontSize * 2;
 
       if (token.type === 'strong') {
         return this.createRuns(token.tokens || [], options, { ...modifiers, bold: true });
@@ -124,32 +124,17 @@ export class DocxConverter {
         return this.createRuns(token.tokens || [], options, { ...modifiers, strike: true });
       }
 
+      if (token.type === 'link') {
+        return this.createRuns(token.tokens || [], options, { ...modifiers, color: options.text.linkColor.replace('#', '') });
+      }
+
       if (token.type === 'codespan') {
         return [new TextRun({
           text: token.text || '',
           font: options.code.fontFamily,
           size: options.code.fontSize * 2,
-          highlight: "lightGray", // simple highlight for inline code
+          highlight: "lightGray",
         })];
-      }
-
-      if (token.type === 'link') {
-        // For simplicity, we make link blue and underlined text. 
-        // Real Docx links need strict relationship IDs. 
-        // docx library `ExternalHyperlink` requires children.
-        // We can treat it as styled text for now or implement proper links.
-        // Let's implement styled text first as "ExternalHyperlink" can be complex in this recursive struct.
-        // Actually, `docx` has ExternalHyperlink.
-        // But returning TextRun[] excludes ExternalHyperlink (which is a Paragraph child, not TextRun sibling directly? No, it looks like it can be child of Paragraph).
-        // But createRuns returns TextRun[].
-        // We might need to return (TextRun | ExternalHyperlink)[].
-        // Let's stick to styled text for link for now to match strict return type or update return type.
-        return this.createRuns(token.tokens || [], options, { ...modifiers, color: options.text.linkColor.replace('#', '') });
-      }
-
-      if (token.type === 'image') {
-        // Inline images are hard. Skipping for now or TODO.
-        return [];
       }
 
       if (['math', 'inlineMath', 'inlineKatex', 'blockKatex'].includes(token.type)) {
@@ -163,161 +148,142 @@ export class DocxConverter {
         })];
       }
 
-      // Fallback for nested structural tokens or unknowns
-      if (token.tokens) {
+      if (token.tokens && token.tokens.length > 0) {
         return this.createRuns(token.tokens, options, modifiers);
       }
 
-      // Fallback for raw text
-      if (token.text || token.raw) {
-        return [new TextRun({
-          text: token.text || token.raw || '',
-          bold: modifiers.bold,
-          italics: modifiers.italics,
-          font: currentFont,
-          size: currentSize,
-        })];
+      const content = token.text || token.raw || '';
+      if (content) {
+        const lines = content.split('\n');
+        return lines.flatMap((line, i) => [
+          new TextRun({
+            text: line,
+            bold: modifiers.bold,
+            italics: modifiers.italics,
+            strike: modifiers.strike,
+            color: modifiers.color || "000000",
+            font: currentFont,
+            size: currentSize,
+            break: i > 0 ? 1 : undefined,
+          })
+        ]);
       }
 
       return [];
     });
   }
 
-  // Legacy method wrapper if needed, or we remove it. 
-  // We remove convertInlineText as it is replaced by createRuns.
-
-  private async convertCodeBlock(token: MarkdownTokens): Promise<Paragraph[]> {
+  private async convertCodeBlock(token: MarkdownTokens, indentLevel: number = 0): Promise<Paragraph[]> {
     const code = token.text || '';
     const language = token.lang || '';
 
-    // Handle Mermaid Diagrams
     if (language === 'mermaid') {
       try {
         const { buffer, width, height } = await MermaidRenderer.renderToBuffer(code);
-
-        // Max width in Word (roughly) is around 600px (approx 6 inches)
-        // We'll constrain it if it's too huge, but Docx ImageRun usually uses EMUs or px.
-        // Let's use standard transformation.
-
         return [new Paragraph({
           children: [
             new ImageRun({
               data: buffer,
-              transformation: {
-                width: width,
-                height: height,
-              },
+              transformation: { width, height },
             }),
           ],
+          indent: indentLevel > 0 ? { left: 720 * indentLevel } : undefined,
         })];
       } catch (error) {
-        console.warn('Failed to render mermaid diagram, falling back to code block', error);
-        // Fallback to normal code block logic
+        console.warn('Failed to render mermaid diagram', error);
       }
     }
 
     return [new Paragraph({
       text: token.text || '',
       style: 'Code',
+      indent: indentLevel > 0 ? { left: 720 * indentLevel } : undefined,
     })];
   }
 
-  private convertList(token: MarkdownTokens, options: ConversionOptions): Paragraph[] {
+  private async convertList(token: MarkdownTokens, options: ConversionOptions, level: number = 0): Promise<Paragraph[]> {
     if (!token.items) return [];
-    return token.items.map((item) =>
-      new Paragraph({
-        children: this.createRuns(item.tokens || [], options),
-      })
-    );
+
+    const results: Paragraph[] = [];
+    for (const item of token.items) {
+      const itemTokens = item.tokens || [];
+      const itemLevel = level + 1;
+
+      let inlineBuffer: MarkdownTokens[] = [];
+      const flushInline = () => {
+        if (inlineBuffer.length > 0) {
+          results.push(new Paragraph({
+            children: this.createRuns(inlineBuffer, options),
+            indent: {
+              left: 720 * itemLevel,
+              hanging: 360,
+            },
+            // Note: Simple manual bullet/marker if numbering is not configured
+            bullet: !token.ordered ? { level: level } : undefined,
+          }));
+          inlineBuffer = [];
+        }
+      };
+
+      for (const t of itemTokens) {
+        if (['text', 'strong', 'em', 'del', 'link', 'codespan', 'math', 'inlineMath'].includes(t.type)) {
+          inlineBuffer.push(t);
+        } else if (t.type === 'list') {
+          await flushInline();
+          const nested = await this.convertList(t, options, itemLevel);
+          results.push(...nested);
+        } else if (t.type === 'paragraph') {
+          await flushInline();
+          results.push(this.convertParagraph(t, options, itemLevel));
+        } else {
+          await flushInline();
+          const subBlocks = await this.convertToken(t, options, itemLevel);
+          results.push(...(subBlocks.filter(b => b instanceof Paragraph) as Paragraph[]));
+        }
+      }
+      await flushInline();
+    }
+    return results;
   }
 
-  private convertTable(token: MarkdownTokens, options: ConversionOptions): Table {
+  private convertTable(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Table {
     const tableData = token.tableData;
-    if (!tableData) {
-      return new Table({ rows: [] });
-    }
-
-    const headerRow = new TableRow({
-      tableHeader: true,
-      children: tableData.headers
-        .map((cell, colIndex) => {
-          if (options.table.enableMergedCells && cell.mergeWithPrevious) {
-            return null;
-          }
-
-          const colSpan = options.table.enableMergedCells
-            ? this.calculateColspan(tableData.headers, colIndex)
-            : cell.colspan || 1;
-
-          return new TableCell({
-            columnSpan: colSpan > 1 ? colSpan : undefined,
-            shading: {
-              fill: "E0E0E0", // Light gray header background
-              color: "auto",
-            },
-            children: [
-              new Paragraph({
-                alignment: "center", // Center headers usually
-                children: this.createRuns(cell.tokens || [], options, { bold: true }),
-              }),
-            ],
-          });
-        })
-        .filter(Boolean) as TableCell[],
-    });
-
-    const bodyRows = tableData.rows.map((row, rowIndex) => {
-      // Banded Rows Logic
-      const isOddRow = rowIndex % 2 === 1;
-      const rowFill = isOddRow ? "F9F9F9" : "FFFFFF";
-
-      return new TableRow({
-        children: row.cells
-          .map((cell, colIndex) => {
-            if (options.table.enableMergedCells && cell.mergeWithPrevious) {
-              return null;
-            }
-
-            const cleanContent = cell.content.trim();
-            // Simple numeric heuristic: numbers, commas, decimals, percent
-            const isNumeric = /^[-+]?(\d{1,3}(,\d{3})*(\.\d+)?|\d+(\.\d+)?)%?$/.test(cleanContent);
-            const align = cell.align
-              ? (cell.align === 'right' ? "right" : cell.align === 'center' ? "center" : "left")
-              : (isNumeric ? "right" : "left"); // Default alignment
-
-            const rowSpan = options.table.enableMergedCells
-              ? this.calculateRowspan(tableData.rows, rowIndex, colIndex)
-              : cell.rowspan || 1;
-            const colSpan = options.table.enableMergedCells
-              ? this.calculateColspan(row.cells, colIndex)
-              : cell.colspan || 1;
-
-            return new TableCell({
-              rowSpan: rowSpan > 1 ? rowSpan : undefined,
-              columnSpan: colSpan > 1 ? colSpan : undefined,
-              shading: {
-                fill: rowFill,
-                color: "auto",
-              },
-              children: [
-                new Paragraph({
-                  alignment: align as any,
-                  children: this.createRuns(cell.tokens || [], options),
-                }),
-              ],
-            });
-          })
-          .filter(Boolean) as TableCell[],
-      });
-    });
+    if (!tableData) return new Table({ rows: [] });
 
     return new Table({
-      rows: [headerRow, ...bodyRows],
-      width: {
-        size: 100,
-        type: "pct",
-      },
+      rows: [
+        new TableRow({
+          tableHeader: true,
+          children: tableData.headers.map(cell => new TableCell({
+            children: [new Paragraph({ children: this.createRuns(cell.tokens || [], options, { bold: true }), alignment: "center" })],
+            shading: { fill: "E0E0E0" }
+          }))
+        }),
+        ...tableData.rows.map((row, rowIndex) => new TableRow({
+          children: row.cells.map(cell => new TableCell({
+            children: [new Paragraph({ children: this.createRuns(cell.tokens || [], options), alignment: (cell.align || "left") as any })],
+            shading: { fill: rowIndex % 2 === 1 ? "F9F9F9" : "FFFFFF" }
+          }))
+        }))
+      ],
+      width: { size: 100, type: "pct" },
+      indent: indentLevel > 0 ? { size: 720 * indentLevel, type: "dxa" } : undefined,
     });
+  }
+
+  private async convertBlockquote(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Promise<Paragraph[]> {
+    const subBlocks = await this.buildDocumentChildren({ tokens: token.tokens || [] } as any, options);
+    const results: Paragraph[] = [];
+
+    for (const sb of subBlocks) {
+      if (sb instanceof Paragraph) {
+        // Safe way to apply indent to existing Paragraph in this version of docx
+        // or just re-wrap it if we could. Since we can't easily, we'll use any.
+        (sb as any).options.indent = { left: 720 * (indentLevel + 1) };
+        results.push(sb);
+      }
+    }
+    return results;
   }
 
   private convertMathText(token: MarkdownTokens, options: ConversionOptions): string {
@@ -337,40 +303,6 @@ export class DocxConverter {
     return isBlock ? `$$${latex}$$` : `$${latex}$`;
   }
 
-  private calculateRowspan(rows: { cells: { content: string; mergeWithPrevious?: boolean }[] }[], rowIndex: number, colIndex: number): number {
-    let rowspan = 1;
-    for (let i = rowIndex + 1; i < rows.length; i += 1) {
-      const cell = rows[i].cells[colIndex];
-      if (cell?.mergeWithPrevious && this.isVerticalMergeMarker(cell.content)) {
-        rowspan += 1;
-      } else {
-        break;
-      }
-    }
-    return rowspan;
-  }
-
-  private calculateColspan(cells: { content: string; mergeWithPrevious?: boolean }[], startIndex: number): number {
-    let colspan = 1;
-    for (let i = startIndex + 1; i < cells.length; i += 1) {
-      const cell = cells[i];
-      if (cell?.mergeWithPrevious && this.isHorizontalMergeMarker(cell.content)) {
-        colspan += 1;
-      } else {
-        break;
-      }
-    }
-    return colspan;
-  }
-
-  private isVerticalMergeMarker(content: string): boolean {
-    return ['↑', '同上'].includes(content.trim());
-  }
-
-  private isHorizontalMergeMarker(content: string): boolean {
-    return ['→', '同左'].includes(content.trim());
-  }
-
   private getHeadingLevel(level: number): any {
     const levels = [
       HeadingLevel.HEADING_1,
@@ -385,7 +317,6 @@ export class DocxConverter {
 
   private createDocumentProperties(options?: DocxDocumentOptions) {
     if (!options) return {};
-
     return {
       title: options.title,
       creator: options.author,

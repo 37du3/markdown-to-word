@@ -19,7 +19,7 @@ export class MarkdownParser {
   private configureMarked(): void {
     this.marked.setOptions({
       gfm: true,
-      breaks: false,
+      breaks: true,
       pedantic: false,
     });
     this.marked.use(markedKatex({ throwOnError: false }));

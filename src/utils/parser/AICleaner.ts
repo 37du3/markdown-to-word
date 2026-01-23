@@ -18,14 +18,14 @@ export class AICleaner {
 
     // 3. Remove common conversation artifacts at start/end
     // (Conservative approach to avoid deleting user content)
-    
+
     // Remove "Reference" or "Source" lists if they are just raw links at the bottom
     // This is tricky to do safely without false positives, so we'll stick to specific markers
-    
+
     // 4. Fix common spacing issues
     // AI often puts citation markers right after text without space, which we just removed.
-    // Sometimes it leaves double spaces.
-    cleaned = cleaned.replace(/  +/g, ' ');
+    // We used to collapse spaces here, but that breaks Markdown indentation.
+    // cleaned = cleaned.replace(/  +/g, ' '); 
 
     return cleaned;
   }
