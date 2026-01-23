@@ -249,24 +249,25 @@ export class DocxConverter {
       let inlineBuffer: MarkdownTokens[] = [];
       const flushInline = () => {
         if (inlineBuffer.length > 0) {
-          const paragraph = new Paragraph({
+          const paragraphOptions: any = {
             children: this.createRuns(inlineBuffer, options),
             indent: {
               left: 720 * (level + 1),
               hanging: 360,
             },
-          });
+          };
 
+          // Apply numbering for ordered lists or bullets for unordered
           if (token.ordered) {
-            (paragraph as any).properties.numbering = {
+            paragraphOptions.numbering = {
               reference: 'default-numbering',
               level: level,
             };
           } else {
-            (paragraph as any).properties.bullet = { level: level };
+            paragraphOptions.bullet = { level: level };
           }
 
-          results.push(paragraph);
+          results.push(new Paragraph(paragraphOptions));
           inlineBuffer = [];
         }
       };
