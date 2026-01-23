@@ -48,9 +48,18 @@ export class HtmlConverter {
         return `<strong>${this.convertInline(token.tokens || [], options)}</strong>`;
       case 'em':
         return `<em>${this.convertInline(token.tokens || [], options)}</em>`;
+      case 'del':
+        return `<del>${this.convertInline(token.tokens || [], options)}</del>`;
       case 'codespan':
         return `<code style="font-family: ${options.code.fontFamily};">${token.text || ''}</code>`;
+      case 'br':
+        return '<br>';
       case 'text':
+        // CRITICAL: Check for nested tokens before using text
+        // This handles cases where a text token contains inline formatting
+        if (token.tokens && token.tokens.length > 0) {
+          return this.convertInline(token.tokens, options);
+        }
         return token.text || '';
       default:
         return token.raw || '';
