@@ -57,3 +57,4 @@ test_*.js
 *.swp
 *.swo
 *~
+dist-extension/
