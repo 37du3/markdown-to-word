@@ -36,6 +36,7 @@ tests/
 
 # AI Tools Symlink Directories (actual skills are in .ai_skills/)
 .agent/
+.ai_skills/
 .codex/
 .claude/
 
