@@ -34,11 +34,12 @@ pnpm-debug.log*
 coverage/
 tests/
 
-# AI Tools and Skills
+# AI Tools Symlink Directories (actual skills are in .ai_skills/)
 .agent/
-.ai_skills/
 .codex/
 .claude/
+
+# Deprecated/Archive
 docs/
 ui-ux-pro-max-skill/
 temp_reference/
