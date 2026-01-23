@@ -26,6 +26,36 @@ export class DocxConverter {
           },
         ],
         ...this.createDocumentProperties(docxOptions),
+        numbering: {
+          config: [
+            {
+              reference: 'default-numbering',
+              levels: [
+                {
+                  level: 0,
+                  format: 'decimal',
+                  text: '%1.',
+                  alignment: 'start',
+                  style: { paragraph: { indent: { left: 720, hanging: 360 } } },
+                },
+                {
+                  level: 1,
+                  format: 'decimal',
+                  text: '(%2)',
+                  alignment: 'start',
+                  style: { paragraph: { indent: { left: 1440, hanging: 360 } } },
+                },
+                {
+                  level: 2,
+                  format: 'lowerLetter',
+                  text: '%3)',
+                  alignment: 'start',
+                  style: { paragraph: { indent: { left: 2160, hanging: 360 } } },
+                },
+              ],
+            },
+          ],
+        },
       });
 
       const blob = await Packer.toBlob(doc);
@@ -112,6 +142,7 @@ export class DocxConverter {
       const currentFont = modifiers.font || options.text.fontFamily;
       const currentSize = options.text.fontSize * 2;
 
+      // Priority 1: Structural inline tokens (must recurse with modifiers)
       if (token.type === 'strong') {
         return this.createRuns(token.tokens || [], options, { ...modifiers, bold: true });
       }
@@ -128,6 +159,7 @@ export class DocxConverter {
         return this.createRuns(token.tokens || [], options, { ...modifiers, color: options.text.linkColor.replace('#', '') });
       }
 
+      // Priority 2: Specialized leaf tokens
       if (token.type === 'codespan') {
         return [new TextRun({
           text: token.text || '',
@@ -135,6 +167,10 @@ export class DocxConverter {
           size: options.code.fontSize * 2,
           highlight: "lightGray",
         })];
+      }
+
+      if (token.type === 'br') {
+        return [new TextRun({ text: '', break: 1 })];
       }
 
       if (['math', 'inlineMath', 'inlineKatex', 'blockKatex'].includes(token.type)) {
@@ -148,10 +184,12 @@ export class DocxConverter {
         })];
       }
 
+      // Priority 3: Tokens with nested tokens (MUST check before using text/raw)
       if (token.tokens && token.tokens.length > 0) {
         return this.createRuns(token.tokens, options, modifiers);
       }
 
+      // Priority 4: Leaf text nodes
       const content = token.text || token.raw || '';
       if (content) {
         const lines = content.split('\n');
@@ -207,37 +245,45 @@ export class DocxConverter {
     const results: Paragraph[] = [];
     for (const item of token.items) {
       const itemTokens = item.tokens || [];
-      const itemLevel = level + 1;
 
       let inlineBuffer: MarkdownTokens[] = [];
       const flushInline = () => {
         if (inlineBuffer.length > 0) {
-          results.push(new Paragraph({
+          const paragraph = new Paragraph({
             children: this.createRuns(inlineBuffer, options),
             indent: {
-              left: 720 * itemLevel,
+              left: 720 * (level + 1),
               hanging: 360,
             },
-            // Note: Simple manual bullet/marker if numbering is not configured
-            bullet: !token.ordered ? { level: level } : undefined,
-          }));
+          });
+
+          if (token.ordered) {
+            (paragraph as any).properties.numbering = {
+              reference: 'default-numbering',
+              level: level,
+            };
+          } else {
+            (paragraph as any).properties.bullet = { level: level };
+          }
+
+          results.push(paragraph);
           inlineBuffer = [];
         }
       };
 
       for (const t of itemTokens) {
-        if (['text', 'strong', 'em', 'del', 'link', 'codespan', 'math', 'inlineMath'].includes(t.type)) {
+        if (['text', 'strong', 'em', 'del', 'link', 'codespan', 'math', 'inlineMath', 'br'].includes(t.type)) {
           inlineBuffer.push(t);
         } else if (t.type === 'list') {
           await flushInline();
-          const nested = await this.convertList(t, options, itemLevel);
+          const nested = await this.convertList(t, options, level + 1);
           results.push(...nested);
         } else if (t.type === 'paragraph') {
           await flushInline();
-          results.push(this.convertParagraph(t, options, itemLevel));
+          results.push(this.convertParagraph(t, options, level + 1));
         } else {
           await flushInline();
-          const subBlocks = await this.convertToken(t, options, itemLevel);
+          const subBlocks = await this.convertToken(t, options, level + 1);
           results.push(...(subBlocks.filter(b => b instanceof Paragraph) as Paragraph[]));
         }
       }
