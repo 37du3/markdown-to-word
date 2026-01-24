@@ -6,6 +6,7 @@ import { EditorTab } from './components/EditorTab';
 import './styles/popup.css';
 import './styles/quick-tab.css';
 import './styles/editor-tab.css';
+import './styles/dialog.css';
 
 export type TabType = 'quick' | 'editor';
 
