@@ -36,6 +36,32 @@ const copyExtensionFiles = () => {
           );
         });
 
+        // Copy _locales directory for i18n support
+        const localesSourceDir = path.resolve(__dirname, 'src/extension/_locales');
+        const localesDestDir = path.resolve(distDir, '_locales');
+
+        // Copy zh_CN
+        const zhCNDir = path.resolve(localesDestDir, 'zh_CN');
+        mkdirSync(zhCNDir, { recursive: true });
+        copyFileSync(
+          path.resolve(localesSourceDir, 'zh_CN/messages.json'),
+          path.resolve(zhCNDir, 'messages.json')
+        );
+
+        // Copy en
+        const enDir = path.resolve(localesDestDir, 'en');
+        mkdirSync(enDir, { recursive: true });
+        copyFileSync(
+          path.resolve(localesSourceDir, 'en/messages.json'),
+          path.resolve(enDir, 'messages.json')
+        );
+
+        // Copy popup.html
+        copyFileSync(
+          path.resolve(__dirname, 'src/extension/popup.html'),
+          path.resolve(distDir, 'popup.html')
+        );
+
         console.log('✓ Extension files copied successfully');
       }
     }
@@ -86,8 +112,21 @@ export default defineConfig({
         },
         output: {
           entryFileNames: '[name].js',
-          chunkFileNames: '[name].js',
-          assetFileNames: '[name].[ext]',
+          chunkFileNames: (chunkInfo) => {
+            // Remove underscore prefix from chunk names
+            const name = chunkInfo.name.startsWith('_')
+              ? chunkInfo.name.substring(1)
+              : chunkInfo.name;
+            return `chunks/${name}-[hash].js`;
+          },
+          assetFileNames: (assetInfo) => {
+            // Remove underscore prefix from asset names
+            const name = assetInfo.name || 'asset';
+            const cleanName = name.startsWith('_') ? name.substring(1) : name;
+            const ext = cleanName.split('.').pop();
+            const base = cleanName.split('.').slice(0, -1).join('.');
+            return ext ? `assets/${base}.[ext]` : `assets/[name].[ext]`;
+          },
         },
       }
       : {
