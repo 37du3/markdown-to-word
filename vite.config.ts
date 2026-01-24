@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { copyFileSync, mkdirSync } from 'fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,11 +56,16 @@ const copyExtensionFiles = () => {
           path.resolve(enDir, 'messages.json')
         );
 
-        // Copy popup.html
-        copyFileSync(
-          path.resolve(__dirname, 'src/extension/popup.html'),
-          path.resolve(distDir, 'popup.html')
-        );
+        // Copy popup.html and fix script reference
+        const popupHtmlSource = path.resolve(__dirname, 'src/extension/popup.html');
+        const popupHtmlDest = path.resolve(distDir, 'popup.html');
+        copyFileSync(popupHtmlSource, popupHtmlDest);
+
+        // Fix the script src from .tsx to .js
+        // Already imported at top
+        let popupHtmlContent = readFileSync(popupHtmlDest, 'utf-8');
+        popupHtmlContent = popupHtmlContent.replace('./popup.tsx', './popup.js');
+        writeFileSync(popupHtmlDest, popupHtmlContent);
 
         console.log('✓ Extension files copied successfully');
       }
