@@ -7,6 +7,7 @@ import { ControlPanel } from './components/Controls/ControlPanel';
 import { Header } from './components/Layout/Header';
 import { useDebounce } from './hooks/useDebounce';
 import { useConversion } from './hooks/useConversion';
+import { preprocessMarkdown } from './lib/preprocessor';
 import type { ConversionStats, ConversionError } from './types';
 
 
@@ -56,6 +57,7 @@ export function App() {
   const [stats, setStats] = useState<ConversionStats | null>(null);
   const [lastCopied, setLastCopied] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(true);
+  const [cleanAIContent, setCleanAIContent] = useState(true);
 
   const { convertToHtml, convertToDocx, calculateStats, copy } = useConversion();
 
@@ -74,7 +76,10 @@ export function App() {
     setError(null);
 
     try {
-      const result = await convertToHtml(markdown, {
+      // Apply AI content cleaning if enabled
+      const processedMarkdown = cleanAIContent ? preprocessMarkdown(markdown) : markdown;
+
+      const result = await convertToHtml(processedMarkdown, {
         code: {
           showLineNumbers,
           theme: 'light',
@@ -85,7 +90,7 @@ export function App() {
 
       if (result.success && result.html) {
         setOutput(result.html);
-        setStats(calculateStats(markdown));
+        setStats(calculateStats(processedMarkdown));
       } else {
         throw result.error || new Error('转换失败');
       }
@@ -218,6 +223,18 @@ export function App() {
               <h2 className="text-sm font-medium text-gray-700">Word 预览</h2>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                className={`text-xs px-2 py-1 rounded border ${cleanAIContent
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'bg-white text-gray-500 border-gray-200'
+                  }`}
+                onClick={() => setCleanAIContent((value) => !value)}
+                aria-pressed={cleanAIContent}
+                title="清理AI生成的「Copy code」等干扰内容"
+              >
+                AI清洗
+              </button>
               <button
                 type="button"
                 className={`text-xs px-2 py-1 rounded border ${showLineNumbers

@@ -76,6 +76,36 @@ npm run build:ext
 
 ---
 
+## ✅ Phase 3: PasteMD 启发功能
+
+### AI 内容预处理器
+- [`src/lib/preprocessor.ts`](file:///Users/yangming/code/v0/src/lib/preprocessor.ts) - 清理AI生成内容
+  - 移除"Copy code"按钮文本
+  - 移除引用标记 [1], [2]
+  - 移除按钮操作文本
+  - 智能空白符清理
+
+### Web App 集成
+- **AI清洗开关**: 在预览区添加切换按钮，默认开启
+- **自动处理**: 转换前自动清理 AI 生成的噪音内容
+- **可选功能**: 用户可随时关闭此功能
+
+### 国际化支持 (i18n)
+- [`src/extension/_locales/zh_CN/messages.json`](file:///Users/yangming/code/v0/src/extension/_locales/zh_CN/messages.json) - 中文语言包
+- [`src/extension/_locales/en/messages.json`](file:///Users/yangming/code/v0/src/extension/_locales/en/messages.json) - 英文语言包
+- 更新 `manifest.json` 使用 `__MSG_*__` 占位符
+- 更新 `background.ts` 使用 `chrome.i18n.getMessage()`
+
+### 已实现功能
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| AI 内容清洗 | ✅ | 自动移除 ChatGPT/Claude 的"Copy code"等干扰内容 |
+| 快捷键 | ✅ | `Ctrl+Shift+M` (Mac: `Cmd+Shift+M`) 打开扩展 |
+| 通知 | ✅ | 转换完成后显示系统通知 |
+| 国际化 | ✅ | 支持中文和英文 |
+
+---
+
 ## 下一步：本地测试
 
 ### 如何加载扩展

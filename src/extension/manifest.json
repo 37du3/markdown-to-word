@@ -1,8 +1,9 @@
 {
     "manifest_version": 3,
-    "name": "Markdown to Word Converter",
+    "name": "__MSG_extName__",
     "version": "1.0.0",
-    "description": "一键将 Markdown 内容转换为 Word 文档，支持 AI 对话、技术文档等多种场景",
+    "description": "__MSG_extDescription__",
+    "default_locale": "zh_CN",
     "permissions": [
         "contextMenus",
         "notifications",
@@ -43,7 +44,7 @@
                 "default": "Ctrl+Shift+M",
                 "mac": "Command+Shift+M"
             },
-            "description": "打开 Markdown to Word 转换器"
+            "description": "__MSG_keyboardShortcutDescription__"
         }
     }
 }

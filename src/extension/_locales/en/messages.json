@@ -1,0 +1,30 @@
+{
+    "extName": {
+        "message": "Markdown to Word Converter",
+        "description": "Extension name"
+    },
+    "extDescription": {
+        "message": "Convert Markdown to Word documents instantly. Supports AI conversations, technical docs, and more.",
+        "description": "Extension description"
+    },
+    "convertToWord": {
+        "message": "Convert to Word",
+        "description": "Context menu item"
+    },
+    "converting": {
+        "message": "Converting selected text...",
+        "description": "Converting notification message"
+    },
+    "convertSuccess": {
+        "message": "Conversion Successful",
+        "description": "Success notification title"
+    },
+    "convertSuccessMessage": {
+        "message": "Word document has been generated",
+        "description": "Success notification message"
+    },
+    "keyboardShortcutDescription": {
+        "message": "Open Markdown to Word Converter",
+        "description": "Keyboard shortcut description"
+    }
+}

@@ -7,7 +7,7 @@
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: 'convert-to-word',
-        title: '转换为 Word 文档',
+        title: chrome.i18n.getMessage('convertToWord'),
         contexts: ['selection'],
     });
 });
@@ -19,8 +19,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
-            title: 'Markdown to Word',
-            message: '正在转换选中的文本...',
+            title: chrome.i18n.getMessage('extName'),
+            message: chrome.i18n.getMessage('converting'),
         });
     }
 });
@@ -32,8 +32,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
-            title: '转换成功',
-            message: 'Word 文档已生成',
+            title: chrome.i18n.getMessage('convertSuccess'),
+            message: chrome.i18n.getMessage('convertSuccessMessage'),
         });
         sendResponse({ success: true });
     }

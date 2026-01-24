@@ -1,0 +1,30 @@
+{
+    "extName": {
+        "message": "Markdown to Word Converter",
+        "description": "Extension name"
+    },
+    "extDescription": {
+        "message": "一键将 Markdown 内容转换为 Word 文档，支持 AI 对话、技术文档等多种场景",
+        "description": "Extension description"
+    },
+    "convertToWord": {
+        "message": "转换为 Word 文档",
+        "description": "Context menu item"
+    },
+    "converting": {
+        "message": "正在转换选中的文本...",
+        "description": "Converting notification message"
+    },
+    "convertSuccess": {
+        "message": "转换成功",
+        "description": "Success notification title"
+    },
+    "convertSuccessMessage": {
+        "message": "Word 文档已生成",
+        "description": "Success notification message"
+    },
+    "keyboardShortcutDescription": {
+        "message": "打开 Markdown to Word 转换器",
+        "description": "Keyboard shortcut description"
+    }
+}

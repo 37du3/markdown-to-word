@@ -5,23 +5,22 @@
     - [x] Analyze PasteMD for borrowable features
     - [x] Create detailed implementation plan
 
-- [x] **Phase 1: Project Setup**
-    - [x] Create `src/extension/manifest.json`
-    - [x] Configure `vite.config.ts` for extension build
-    - [x] Add `build:ext` script to `package.json`
-    - [x] Install `@types/chrome`
+- [ ] **Phase 1: Project Setup**
+    - [ ] Create `src/extension/manifest.json`
+    - [ ] Configure `vite.config.ts` for extension build
+    - [ ] Add `build:ext` script to `package.json`
+    - [ ] Install `@types/chrome`
 
-- [x] **Phase 2: Core Extension**
-    - [x] Create `popup.tsx` (Popup UI)
-    - [x] Create `background.ts` (Service Worker)
-    - [x] Create `content.ts` (Page scraper)
-    - [x] Generate and add extension icons
+- [ ] **Phase 2: Core Extension**
+    - [ ] Create `popup.tsx` (Popup UI)
+    - [ ] Create `background.ts` (Service Worker)
+    - [ ] Create `content.ts` (Page scraper)
 
-- [ ] **Phase 3: PasteMD-Inspired Features**
-    - [ ] Add AI content preprocessor
-    - [ ] Add keyboard shortcut support
-    - [ ] Add notification on completion
-    - [ ] Add i18n support
+- [x] **Phase 3: PasteMD-Inspired Features**
+    - [x] Add AI content preprocessor
+    - [x] Add keyboard shortcut support
+    - [x] Add notification on completion
+    - [x] Add i18n support
 
 - [ ] **Phase 4: Release**
     - [ ] Create `release-extension.yml` workflow
