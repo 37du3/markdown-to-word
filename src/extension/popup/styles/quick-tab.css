@@ -1,9 +1,11 @@
 /* Quick Tab Styles - Premium Edition */
 .quick-tab {
     padding: 24px;
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 20px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .quick-section {
@@ -189,7 +191,31 @@
 }
 
 /* Icon utilities */
-.icon {
-    width: 20px;
-    height: 20px;
+.icon,
+.section-icon,
+.btn-icon,
+.tab-icon,
+.status-icon svg,
+.status-info svg,
+.dialog-close svg,
+.success-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.success-icon svg {
+    width: 64px !important;
+    height: 64px !important;
+}
+
+.section-icon {
+    margin-right: 8px;
+    color: #667eea;
+}
+
+svg {
+    display: block;
+    /* Remove extra space below inline SVG */
 }

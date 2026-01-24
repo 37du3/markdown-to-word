@@ -50,11 +50,12 @@ export function QuickTab() {
                 code: { showLineNumbers, theme: 'light' as const, fontFamily: 'JetBrains Mono', fontSize: 14 }
             };
 
-            // 2. Run conversions in parallel
-            const [htmlResult, docxResult] = await Promise.all([
-                convertToHtml(processedContent, options),
-                convertToDocx(processedContent, options)
-            ]);
+            // 2. Run conversions sequentially to prevent resource contention
+            console.log('Starting HTML conversion...');
+            const htmlResult = await convertToHtml(processedContent, options);
+
+            console.log('Starting Docx conversion...');
+            const docxResult = await convertToDocx(processedContent, options);
 
             if (htmlResult.success && docxResult.success) {
                 setConversionResult({
