@@ -31,7 +31,7 @@ const copyExtensionFiles = () => {
 
         ['16', '32', '48', '128'].forEach(size => {
           copyFileSync(
-            path.resolve(__dirname, `public/icons/icon${size}.png`),
+            path.resolve(__dirname, `src/extension/icons/icon${size}.png`),
             path.resolve(iconsDir, `icon${size}.png`)
           );
         });

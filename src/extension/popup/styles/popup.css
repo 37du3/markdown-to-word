@@ -2,29 +2,13 @@
    POPUP CONTAINER & LAYOUT
    ======================================== */
 .popup-container {
-  width: 420px;
-  min-height: 500px;
-  max-height: 600px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  width: 380px;
+  min-height: 480px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  position: relative;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   overflow: hidden;
-}
-
-/* Background Pattern */
-.popup-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
-  pointer-events: none;
 }
 
 /* ========================================
@@ -34,42 +18,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  position: relative;
-  z-index: 10;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
 
 .popup-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white;
   margin: 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 
 .settings-btn {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  color: #667eea;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: white;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .settings-btn:hover {
-  background: rgba(102, 126, 234, 0.15);
-  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* ========================================
@@ -77,11 +53,9 @@
    ======================================== */
 .tab-navigation {
   display: flex;
-  gap: 8px;
-  padding: 16px 24px 0;
-  background: transparent;
-  position: relative;
-  z-index: 5;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0;
 }
 
 .tab-button {
@@ -90,57 +64,30 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.9);
+  padding: 14px 16px;
+  background: transparent;
   border: none;
-  border-radius: 12px 12px 0 0;
+  border-bottom: 2px solid transparent;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: #64748b;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.tab-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  opacity: 0;
-  transition: opacity 0.3s;
+  transition: all 0.2s ease;
 }
 
 .tab-button:hover {
   color: #475569;
-  transform: translateY(-2px);
+  background: #f8fafc;
 }
 
 .tab-button.active {
-  background: #ffffff;
   color: #667eea;
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.tab-button.active::before {
-  opacity: 0.05;
-}
-
-.tab-icon {
-  width: 18px;
-  height: 18px;
-  position: relative;
-  z-index: 1;
+  border-bottom-color: #667eea;
+  background: white;
 }
 
 .tab-label {
   font-size: 14px;
-  position: relative;
-  z-index: 1;
 }
 
 /* ======================================== 
@@ -150,13 +97,12 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #ffffff;
-  position: relative;
+  background: transparent;
 }
 
 /* Scrollbar */
 .popup-content::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .popup-content::-webkit-scrollbar-track {
@@ -164,10 +110,6 @@
 }
 
 .popup-content::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 3px;
-}
-
-.popup-content::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #653a8d 100%);
+  background: #cbd5e1;
+  border-radius: 2px;
 }
