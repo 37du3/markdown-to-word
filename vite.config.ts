@@ -61,10 +61,14 @@ const copyExtensionFiles = () => {
         const popupHtmlDest = path.resolve(distDir, 'popup.html');
         copyFileSync(popupHtmlSource, popupHtmlDest);
 
-        // Fix the script src from .tsx to .js
-        // Already imported at top
+        // Fix the script src from .tsx to .js and inject CSS link
         let popupHtmlContent = readFileSync(popupHtmlDest, 'utf-8');
         popupHtmlContent = popupHtmlContent.replace('./popup.tsx', './popup.js');
+        // Inject CSS link in head
+        popupHtmlContent = popupHtmlContent.replace(
+          '</head>',
+          '  <link rel="stylesheet" href="./assets/popup.css" />\n</head>'
+        );
         writeFileSync(popupHtmlDest, popupHtmlContent);
 
         console.log('✓ Extension files copied successfully');
