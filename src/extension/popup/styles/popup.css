@@ -1,11 +1,40 @@
 /* Popup Base Styles */
 :root {
-  --gradient-start: #667eea;
-  --gradient-end: #764ba2;
-  --bg-gradient: linear-gradient(135deg, #e8ecf7 0%, #f3e8f5 100%);
-  --card-bg: white;
-  --text-primary: #333;
-  --text-secondary: #666;
+  /* Brand Colors */
+  --gradient-start: #6366f1;
+  /* Indigo 500 - more vibrant than #667eea */
+  --gradient-end: #8b5cf6;
+  /* Violet 500 - more vibrant than #764ba2 */
+
+  /* Slate Color Scale (Professional Neutral) */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  /* Borders */
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  /* Muted Text */
+  --slate-500: #64748b;
+  /* Secondary Text */
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  /* Primary Text */
+  --slate-900: #0f172a;
+  /* Headings */
+
+  /* Semantic Colors */
+  --bg-gradient: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+  /* Softer Blue/Purple Tint */
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: var(--slate-800);
+  --text-secondary: var(--slate-500);
+  --border-color: var(--slate-200);
+
+  /* Effects */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --border-radius: 12px;
 }
 
