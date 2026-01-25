@@ -111,7 +111,9 @@ export class DocxConverter {
       case 'list':
         return this.convertList(token, options, indentLevel);
       case 'table':
-        return [this.convertTable(token, options, indentLevel)];
+        const tableResult = this.convertTable(token, options, indentLevel);
+        // convertTable now returns Paragraph[] when table is invalid
+        return Array.isArray(tableResult) ? tableResult : [tableResult];
       case 'blockquote':
         return this.convertBlockquote(token, options, indentLevel);
       default:
@@ -333,29 +335,82 @@ export class DocxConverter {
     return results;
   }
 
-  private convertTable(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Table {
+  private convertTable(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Table | Paragraph[] {
     const tableData = token.tableData;
-    if (!tableData) return new Table({ rows: [] });
 
-    return new Table({
-      rows: [
-        new TableRow({
-          tableHeader: true,
-          children: tableData.headers.map(cell => new TableCell({
+    console.log('[convertTable] Processing table, hasTableData:', !!tableData);
+
+    if (!tableData) {
+      console.warn('[convertTable] No table data found, skipping table');
+      // Return empty paragraph instead of empty table (docx doesn't allow empty tables)
+      return [new Paragraph({ text: "" })];
+    }
+
+    console.log('[convertTable] Headers:', tableData.headers?.length);
+    console.log('[convertTable] Rows:', tableData.rows?.length);
+
+    // Validate table data
+    if (!tableData.headers || !Array.isArray(tableData.headers)) {
+      console.error('[convertTable] Invalid headers:', tableData.headers);
+      return [new Paragraph({ text: "" })];
+    }
+
+    if (!tableData.rows || !Array.isArray(tableData.rows)) {
+      console.error('[convertTable] Invalid rows:', tableData.rows);
+      return [new Paragraph({ text: "" })];
+    }
+
+    // Check for empty table
+    if (tableData.headers.length === 0) {
+      console.warn('[convertTable] Empty headers, skipping table');
+      return [new Paragraph({ text: "" })];
+    }
+
+    try {
+      const headerRow = new TableRow({
+        tableHeader: true,
+        children: tableData.headers.map((cell, idx) => {
+          console.log(`[convertTable] Processing header cell ${idx}:`, cell.tokens?.length || 0, 'tokens');
+          return new TableCell({
             children: [new Paragraph({ children: this.createRuns(cell.tokens || [], options, { bold: true }), alignment: "center" })],
             shading: { fill: "E0E0E0" }
-          }))
-        }),
-        ...tableData.rows.map((row, rowIndex) => new TableRow({
-          children: row.cells.map(cell => new TableCell({
-            children: [new Paragraph({ children: this.createRuns(cell.tokens || [], options), alignment: (cell.align || "left") as any })],
-            shading: { fill: rowIndex % 2 === 1 ? "F9F9F9" : "FFFFFF" }
-          }))
-        }))
-      ],
-      width: { size: 100, type: "pct" },
-      indent: indentLevel > 0 ? { size: 720 * indentLevel, type: "dxa" } : undefined,
-    });
+          });
+        })
+      });
+
+      const dataRows = tableData.rows.map((row, rowIndex) => {
+        console.log(`[convertTable] Processing row ${rowIndex}, cells:`, row.cells?.length || 0);
+
+        if (!row.cells || !Array.isArray(row.cells)) {
+          console.error(`[convertTable] Row ${rowIndex} has invalid cells:`, row.cells);
+          // Skip invalid rows by returning placeholder
+          return null;
+        }
+
+        return new TableRow({
+          children: row.cells.map((cell, cellIdx) => {
+            console.log(`[convertTable] Processing row ${rowIndex} cell ${cellIdx}`);
+            return new TableCell({
+              children: [new Paragraph({ children: this.createRuns(cell.tokens || [], options), alignment: (cell.align || "left") as any })],
+              shading: { fill: rowIndex % 2 === 1 ? "F9F9F9" : "FFFFFF" }
+            });
+          })
+        });
+      }).filter(row => row !== null) as TableRow[];
+
+      console.log('[convertTable] Creating table with', 1 + dataRows.length, 'rows');
+
+      return new Table({
+        rows: [headerRow, ...dataRows],
+        width: { size: 100, type: "pct" },
+        indent: indentLevel > 0 ? { size: 720 * indentLevel, type: "dxa" } : undefined,
+      });
+    } catch (err) {
+      console.error('[convertTable] Error creating table:', err);
+      console.error('[convertTable] Table data:', JSON.stringify(tableData, null, 2));
+      // Return empty paragraph instead of throwing to avoid crashing whole conversion
+      return [new Paragraph({ text: `[Table conversion failed]` })];
+    }
   }
 
   private async convertBlockquote(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Promise<Paragraph[]> {
@@ -365,8 +420,10 @@ export class DocxConverter {
     for (const sb of subBlocks) {
       if (sb instanceof Paragraph) {
         // Safe way to apply indent to existing Paragraph in this version of docx
-        // or just re-wrap it if we could. Since we can't easily, we'll use any.
-        (sb as any).options.indent = { left: 720 * (indentLevel + 1) };
+        // Check if options exists before modifying
+        if ((sb as any).options) {
+          (sb as any).options.indent = { left: 720 * (indentLevel + 1) };
+        }
         results.push(sb);
       }
     }
