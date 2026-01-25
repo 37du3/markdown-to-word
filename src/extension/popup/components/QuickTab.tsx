@@ -97,8 +97,15 @@ export function QuickTab() {
     const handleDownload = async () => {
         if (conversionResult.docx) {
             try {
-                const { saveAs } = await import('file-saver');
-                saveAs(conversionResult.docx, 'converted-document.docx');
+                // Use native download method for better extension compatibility
+                const url = URL.createObjectURL(conversionResult.docx);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'converted-document.docx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
                 setShowDialog(false);
             } catch (err) {
                 console.error('Download failed:', err);
