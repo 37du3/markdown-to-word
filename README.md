@@ -64,7 +64,7 @@
 
 最便捷的方式，随手可用：
 
-1. 下载 [最新发布的扩展包 (v1.0.0)](https://github.com/37du3/markdown-to-word/releases/tag/v1.0.0)
+1. 下载 [最新发布的扩展包 (ZIP)](https://github.com/37du3/markdown-to-word/releases)
 2. 解压 ZIP 文件
 3. 打开 Chrome 扩展管理页 `chrome://extensions/`
 4. 开启右上角"开发者模式"
