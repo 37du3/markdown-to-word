@@ -5,6 +5,13 @@ import { useConversion } from '../../../hooks/useConversion';
 import { preprocessMarkdown } from '../../../lib/preprocessor';
 import { ConversionSuccessDialog } from './ConversionSuccessDialog';
 
+// Chrome extension API type declaration
+declare const chrome: {
+    downloads?: {
+        download: (options: { url: string; filename: string; saveAs?: boolean }, callback?: () => void) => void;
+    };
+};
+
 // Inline icon style to guarantee sizing
 const iconStyle = { width: 20, height: 20, flexShrink: 0 };
 const btnIconStyle = { width: 18, height: 18, flexShrink: 0 };
@@ -97,15 +104,27 @@ export function QuickTab() {
     const handleDownload = async () => {
         if (conversionResult.docx) {
             try {
-                // Use native download method for better extension compatibility
+                // Use chrome.downloads API for proper filename in extension context
                 const url = URL.createObjectURL(conversionResult.docx);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'converted-document.docx';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+
+                if (typeof chrome !== 'undefined' && chrome.downloads) {
+                    chrome.downloads.download({
+                        url: url,
+                        filename: 'converted-document.docx',
+                        saveAs: true
+                    }, () => {
+                        URL.revokeObjectURL(url);
+                    });
+                } else {
+                    // Fallback for non-extension environment
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'converted-document.docx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
                 setShowDialog(false);
             } catch (err) {
                 console.error('Download failed:', err);
