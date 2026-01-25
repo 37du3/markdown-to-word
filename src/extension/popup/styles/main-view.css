@@ -1,0 +1,264 @@
+/* Main View Styles - Simplified Popup UI */
+
+.main-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    min-height: 350px;
+}
+
+/* Import Card */
+.import-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 2px dashed #e0e0e0;
+}
+
+.import-card:hover:not(.has-content) {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+.import-card.has-content {
+    cursor: default;
+    border-style: solid;
+    border-color: #e8e8e8;
+    padding: 16px;
+    text-align: left;
+}
+
+.import-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    color: #667eea;
+}
+
+.import-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.import-title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.import-hint {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+}
+
+/* Content Preview */
+.content-preview {
+    max-height: 120px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.content-preview::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, white);
+}
+
+.content-preview pre {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'SF Mono', Menlo, monospace;
+    line-height: 1.5;
+}
+
+/* Options Section */
+.options-section {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.option-row:last-child {
+    border-bottom: none;
+}
+
+.option-row:hover {
+    background: #fafafa;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    appearance: none;
+    width: 44px;
+    height: 24px;
+    background: #ddd;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.toggle-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch:checked {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.toggle-switch:checked::before {
+    transform: translateX(20px);
+}
+
+/* Convert Button */
+.btn-convert {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-convert:hover:not(.disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-convert.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Text Button */
+.btn-text {
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+/* Primary Button */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: scale(1.02);
+}
+
+/* Spinner */
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success Container */
+.success-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    flex: 1;
+}
+
+.success-icon-large {
+    width: 72px;
+    height: 72px;
+    color: #22c55e;
+    margin-bottom: 20px;
+}
+
+.success-icon-large svg {
+    width: 100%;
+    height: 100%;
+}
+
+.success-title {
+    margin: 0 0 12px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+}
+
+.success-message {
+    margin: 0 0 28px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}

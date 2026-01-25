@@ -5,11 +5,9 @@
     "description": "__MSG_extDescription__",
     "default_locale": "zh_CN",
     "permissions": [
-        "contextMenus",
         "notifications",
         "activeTab",
-        "clipboardRead",
-        "downloads"
+        "clipboardRead"
     ],
     "action": {
         "default_popup": "popup.html",
@@ -29,17 +27,6 @@
     "background": {
         "service_worker": "background.js"
     },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://chatgpt.com/*",
-                "https://claude.ai/*"
-            ],
-            "js": [
-                "content.js"
-            ]
-        }
-    ],
     "commands": {
         "_execute_action": {
             "suggested_key": {

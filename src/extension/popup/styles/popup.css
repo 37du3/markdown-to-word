@@ -1,115 +1,92 @@
-/* ========================================
-   POPUP CONTAINER & LAYOUT
-   ======================================== */
-.popup-container {
-  width: 380px;
-  min-height: 480px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  overflow: hidden;
+/* Popup Base Styles */
+:root {
+  --gradient-start: #667eea;
+  --gradient-end: #764ba2;
+  --bg-gradient: linear-gradient(135deg, #e8ecf7 0%, #f3e8f5 100%);
+  --card-bg: white;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --border-radius: 12px;
 }
 
-/* ========================================
-   HEADER
-   ======================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-gradient);
+  -webkit-font-smoothing: antialiased;
+}
+
+.popup-container {
+  width: 320px;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Header */
 .popup-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
 }
 
 .popup-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: white;
   margin: 0;
-  letter-spacing: -0.3px;
+  letter-spacing: 0.5px;
 }
 
 .settings-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  color: white;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .settings-btn:hover {
   background: rgba(255, 255, 255, 0.25);
-}
-
-/* ========================================
-   TAB NAVIGATION
-   ======================================== */
-.tab-navigation {
-  display: flex;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0;
-}
-
-.tab-button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 16px;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
-  transition: all 0.2s ease;
-}
-
-.tab-button:hover {
-  color: #475569;
-  background: #f8fafc;
-}
-
-.tab-button.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
-  background: white;
-}
-
-.tab-label {
-  font-size: 14px;
-}
-
-/* ======================================== 
-   CONTENT AREA
-   ======================================== */
-.popup-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: transparent;
-}
-
-/* Scrollbar */
-.popup-content::-webkit-scrollbar {
-  width: 4px;
-}
-
-.popup-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.popup-content::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 2px;
+  transform: rotate(45deg);
 }

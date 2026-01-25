@@ -1,59 +1,19 @@
 /**
  * Chrome Extension Background Service Worker
- * Handles context menus, keyboard shortcuts, and notifications
+ * Simplified - only handles keyboard shortcuts
  */
 
-// Create context menu on extension install
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: 'convert-to-word',
-        title: chrome.i18n.getMessage('convertToWord'),
-        contexts: ['selection'],
-    });
-});
-
-// Handle context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'convert-to-word' && info.selectionText) {
-        // Send selected text to popup or handle conversion
-        chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon128.png',
-            title: chrome.i18n.getMessage('extName'),
-            message: chrome.i18n.getMessage('converting'),
-        });
+// Listen for keyboard shortcut to open popup
+chrome.commands.onCommand.addListener((command) => {
+    if (command === '_execute_action') {
+        // Popup opens automatically via _execute_action
+        console.log('[Background] Keyboard shortcut triggered');
     }
 });
 
-// Listen for messages from content scripts or popup
+// Listen for messages from popup (for future use)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'convert') {
-        // Handle conversion request
-        chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/icon128.png',
-            title: chrome.i18n.getMessage('convertSuccess'),
-            message: chrome.i18n.getMessage('convertSuccessMessage'),
-        });
-        sendResponse({ success: true });
-    }
-
-    if (request.action === 'download-docx') {
-        // Handle document download with proper filename
-        chrome.downloads.download({
-            url: request.dataUrl,
-            filename: request.filename || 'converted-document.docx',
-            saveAs: true
-        }, (downloadId) => {
-            if (chrome.runtime.lastError) {
-                console.error('Download failed:', chrome.runtime.lastError);
-                sendResponse({ success: false, error: chrome.runtime.lastError.message });
-            } else {
-                sendResponse({ success: true, downloadId });
-            }
-        });
-        return true; // Keep message channel open for async response
-    }
-
+    console.log('[Background] Received message:', request);
+    sendResponse({ success: true });
     return true;
 });
