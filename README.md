@@ -60,10 +60,28 @@
 
 ## 🚀 快速开始
 
-### 在线体验
-直接访问：[https://37du3.github.io/markdown-to-word/](https://37du3.github.io/markdown-to-word/)
+### 方式一：Chrome 扩展程序 (推荐)
 
-### 本地部署
+最便捷的方式，随手可用：
+
+1. 下载 [最新发布的扩展包 (v1.0.0)](https://github.com/37du3/markdown-to-word/releases/tag/v1.0.0)
+2. 解压 ZIP 文件
+3. 打开 Chrome 扩展管理页 `chrome://extensions/`
+4. 开启右上角"开发者模式"
+5. 从左上角点击"加载已解压的扩展程序"，选择解压后的文件夹
+
+**使用方法：**
+1. 复制 AI 生成的内容
+2. 点击扩展图标，选择"从剪贴板导入"
+3. 转换后直接粘贴到 Word
+
+### 方式二：在线 Web 版
+
+无需安装，打开即用：
+[https://37du3.github.io/markdown-to-word/](https://37du3.github.io/markdown-to-word/)
+
+### 方式三：本地部署
+
 ```bash
 # 1. 克隆
 git clone https://github.com/37du3/markdown-to-word.git
@@ -71,8 +89,11 @@ git clone https://github.com/37du3/markdown-to-word.git
 # 2. 安装
 npm install
 
-# 3. 运行
+# 3. 运行 Web 版
 npm run dev
+
+# 4. 构建扩展
+npm run build:ext
 ```
 
 ---
