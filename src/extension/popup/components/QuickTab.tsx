@@ -104,28 +104,33 @@ export function QuickTab() {
     const handleDownload = async () => {
         if (conversionResult.docx) {
             try {
-                // Use chrome.downloads API for proper filename in extension context
-                const url = URL.createObjectURL(conversionResult.docx);
+                // Convert blob to data URL for chrome.downloads to properly use filename
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const dataUrl = reader.result as string;
 
-                if (typeof chrome !== 'undefined' && chrome.downloads) {
-                    chrome.downloads.download({
-                        url: url,
-                        filename: 'converted-document.docx',
-                        saveAs: true
-                    }, () => {
-                        URL.revokeObjectURL(url);
-                    });
-                } else {
-                    // Fallback for non-extension environment
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'converted-document.docx';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }
-                setShowDialog(false);
+                    if (typeof chrome !== 'undefined' && chrome.downloads) {
+                        chrome.downloads.download({
+                            url: dataUrl,
+                            filename: 'converted-document.docx',
+                            saveAs: true
+                        });
+                    } else {
+                        // Fallback for non-extension environment
+                        const a = document.createElement('a');
+                        a.href = dataUrl;
+                        a.download = 'converted-document.docx';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                    setShowDialog(false);
+                };
+                reader.onerror = () => {
+                    console.error('FileReader failed');
+                    alert('下载失败：无法读取文件');
+                };
+                reader.readAsDataURL(conversionResult.docx);
             } catch (err) {
                 console.error('Download failed:', err);
                 alert('下载失败');
