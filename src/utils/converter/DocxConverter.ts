@@ -16,7 +16,26 @@ export class DocxConverter {
     docxOptions?: DocxDocumentOptions
   ): Promise<{ success: boolean; docx?: Blob; error?: Error }> {
     try {
+      // Log content size for debugging
+      console.log('[DocxConverter] Starting conversion, AST tokens:', ast.tokens?.length);
+
+      // Check content size to prevent array length errors
+      const astString = JSON.stringify(ast);
+      const contentSize = astString.length;
+      console.log('[DocxConverter] Content size (bytes):', contentSize);
+
+      // Warn if content is very large (>10MB)
+      if (contentSize > 10 * 1024 * 1024) {
+        console.warn('[DocxConverter] Warning: Very large content detected, may cause issues');
+      }
+
+      // Maximum safe array length check
+      if (contentSize > 100 * 1024 * 1024) {
+        throw new Error(`Content too large (${Math.round(contentSize / 1024 / 1024)}MB). Maximum supported size is 100MB.`);
+      }
+
       const children = await this.buildDocumentChildren(ast, options);
+      console.log('[DocxConverter] Document children built:', children.length);
 
       const doc = new Document({
         sections: [
@@ -58,12 +77,19 @@ export class DocxConverter {
         },
       });
 
+      console.log('[DocxConverter] Document created, packing to blob...');
       const blob = await Packer.toBlob(doc);
+      console.log('[DocxConverter] Blob created successfully:', blob.size, 'bytes');
       return { success: true, docx: blob };
     } catch (error) {
+      console.error('[DocxConverter] Conversion error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Docx conversion failed';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      console.error('[DocxConverter] Error stack:', errorStack);
+
       return {
         success: false,
-        error: error instanceof Error ? error : new Error('Docx conversion failed'),
+        error: error instanceof Error ? error : new Error(errorMessage),
       };
     }
   }

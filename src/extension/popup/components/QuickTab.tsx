@@ -53,23 +53,29 @@ export function QuickTab() {
                 code: { showLineNumbers, theme: 'light' as const, fontFamily: 'JetBrains Mono', fontSize: 14 }
             };
 
+            console.log('[QuickTab] Starting conversion, content length:', processedContent.length);
+
             // Sequential conversion
             const htmlResult = await convertToHtml(processedContent, options);
-            const docxResult = await convertToDocx(processedContent, options);
-
-            if (htmlResult.success && docxResult.success) {
-                setConversionResult({
-                    html: htmlResult.html,
-                    text: htmlResult.plainText,
-                    docx: docxResult.docx
-                });
-                setShowDialog(true);
-            } else {
-                throw new Error(htmlResult.error?.message || docxResult.error?.message || '转换失败');
+            if (!htmlResult.success) {
+                throw new Error(`HTML转换失败: ${htmlResult.error?.message || '未知错误'}`);
             }
+
+            const docxResult = await convertToDocx(processedContent, options);
+            if (!docxResult.success) {
+                throw new Error(`Word转换失败: ${docxResult.error?.message || '未知错误'}`);
+            }
+
+            setConversionResult({
+                html: htmlResult.html,
+                text: htmlResult.plainText,
+                docx: docxResult.docx
+            });
+            setShowDialog(true);
         } catch (err) {
-            console.error('Conversion failed:', err);
-            alert(err instanceof Error ? err.message : '转换失败');
+            console.error('[QuickTab] Conversion failed:', err);
+            const errorMessage = err instanceof Error ? err.message : '转换失败';
+            alert(`转换失败\n\n${errorMessage}\n\n请检查浏览器控制台查看详细日志。`);
         } finally {
             setIsConverting(false);
         }
