@@ -37,5 +37,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
         sendResponse({ success: true });
     }
+
+    if (request.action === 'download-docx') {
+        // Handle document download with proper filename
+        chrome.downloads.download({
+            url: request.dataUrl,
+            filename: request.filename || 'converted-document.docx',
+            saveAs: true
+        }, (downloadId) => {
+            if (chrome.runtime.lastError) {
+                console.error('Download failed:', chrome.runtime.lastError);
+                sendResponse({ success: false, error: chrome.runtime.lastError.message });
+            } else {
+                sendResponse({ success: true, downloadId });
+            }
+        });
+        return true; // Keep message channel open for async response
+    }
+
     return true;
 });

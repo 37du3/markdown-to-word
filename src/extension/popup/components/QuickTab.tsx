@@ -10,6 +10,9 @@ declare const chrome: {
     downloads?: {
         download: (options: { url: string; filename: string; saveAs?: boolean }, callback?: () => void) => void;
     };
+    runtime?: {
+        sendMessage: (message: any, callback?: (response: any) => void) => void;
+    };
 };
 
 // Inline icon style to guarantee sizing
@@ -104,16 +107,24 @@ export function QuickTab() {
     const handleDownload = async () => {
         if (conversionResult.docx) {
             try {
-                // Convert blob to data URL for chrome.downloads to properly use filename
+                // Convert blob to data URL and send to background script for download
                 const reader = new FileReader();
                 reader.onload = () => {
                     const dataUrl = reader.result as string;
 
-                    if (typeof chrome !== 'undefined' && chrome.downloads) {
-                        chrome.downloads.download({
-                            url: dataUrl,
-                            filename: 'converted-document.docx',
-                            saveAs: true
+                    if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+                        // Use background script for reliable filename
+                        chrome.runtime.sendMessage({
+                            action: 'download-docx',
+                            dataUrl: dataUrl,
+                            filename: 'converted-document.docx'
+                        }, (response) => {
+                            if (response?.success) {
+                                setShowDialog(false);
+                            } else {
+                                console.error('Download failed:', response?.error);
+                                alert('下载失败');
+                            }
                         });
                     } else {
                         // Fallback for non-extension environment
@@ -123,8 +134,8 @@ export function QuickTab() {
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
+                        setShowDialog(false);
                     }
-                    setShowDialog(false);
                 };
                 reader.onerror = () => {
                     console.error('FileReader failed');
