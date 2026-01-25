@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConversion } from '../../../hooks/useConversion';
 import { useClipboard } from '../hooks/useClipboard';
 import { preprocessMarkdown } from '../../../lib/preprocessor';
@@ -13,6 +13,16 @@ export function MainView() {
 
     const { convertToHtml } = useConversion();
     const { paste, copy } = useClipboard();
+
+    // Auto close popup after success
+    useEffect(() => {
+        if (showSuccess) {
+            const timer = setTimeout(() => {
+                window.close();
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [showSuccess]);
 
     const handlePaste = async () => {
         try {
@@ -72,12 +82,8 @@ export function MainView() {
                     </div>
                     <h2 className="success-title">转换完成！</h2>
                     <p className="success-message">
-                        已复制到剪贴板<br />
-                        请粘贴到 Word、WPS 或其他文档中
+                        已复制到剪贴板，请粘贴到 Word 中
                     </p>
-                    <button className="btn-primary" onClick={handleReset}>
-                        继续转换
-                    </button>
                 </div>
             </div>
         );
