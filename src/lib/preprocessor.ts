@@ -33,11 +33,22 @@ function removeCopyCodeArtifacts(content: string): string {
 }
 
 /**
- * Remove citation markers like [1], [2], etc.
+ * Remove citation markers like [1], [2], 【^1^】, 【^11^】 etc.
+ * Supports both Western-style [1] and Kimi-style 【^1^】 citations
  */
 function removeCitations(content: string): string {
-    // Remove citation markers like [1], [2], etc.
-    return content.replace(/\[\d+\]/g, '');
+    let cleaned = content;
+
+    // Remove Western-style citations: [1], [2], etc.
+    cleaned = cleaned.replace(/\[(\d+)\]/g, '');
+
+    // Remove Kimi-style citations: 【^1^】, 【^11^】, etc.
+    cleaned = cleaned.replace(/【\^\d+\^】/g, '');
+
+    // Clean up any remaining empty Chinese brackets (in case partial cleaning occurred)
+    cleaned = cleaned.replace(/【】/g, '');
+
+    return cleaned;
 }
 
 /**
