@@ -37,18 +37,40 @@ function removeCopyCodeArtifacts(content: string): string {
 /**
  * Remove citation markers like [1], [2], 【^1^】, 【^11^】 etc.
  * Supports both Western-style [1] and Kimi-style 【^1^】 citations
+ * IMPORTANT: Preserves content inside LaTeX math delimiters ($...$, $$...$$)
  */
 function removeCitations(content: string): string {
-    let cleaned = content;
+    // First, protect math content by replacing with placeholders
+    const mathBlocks: string[] = [];
+    let protected_ = content;
 
-    // Remove Western-style citations: [1], [2], etc.
-    cleaned = cleaned.replace(/\[(\d+)\]/g, '');
+    // Protect block math first ($$...$$)
+    protected_ = protected_.replace(/\$\$([\s\S]*?)\$\$/g, (match) => {
+        mathBlocks.push(match);
+        return `___MATH_BLOCK_${mathBlocks.length - 1}___`;
+    });
+
+    // Protect inline math ($...$)
+    protected_ = protected_.replace(/\$([^$\n]+)\$/g, (match) => {
+        mathBlocks.push(match);
+        return `___MATH_BLOCK_${mathBlocks.length - 1}___`;
+    });
+
+    // Now safely remove citations from non-math content
+    // Remove Western-style citations: [1], [2], etc. (standalone, not part of markdown links)
+    // Only match [N] that are NOT preceded by ] (to avoid markdown link syntax)
+    let cleaned = protected_.replace(/(?<!\])\[(\d+)\]/g, '');
 
     // Remove Kimi-style citations: 【^1^】, 【^11^】, etc.
     cleaned = cleaned.replace(/【\^\d+\^】/g, '');
 
-    // Clean up any remaining empty Chinese brackets (in case partial cleaning occurred)
+    // Clean up any remaining empty Chinese brackets
     cleaned = cleaned.replace(/【】/g, '');
+
+    // Restore math blocks
+    mathBlocks.forEach((block, i) => {
+        cleaned = cleaned.replace(`___MATH_BLOCK_${i}___`, block);
+    });
 
     return cleaned;
 }
