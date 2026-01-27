@@ -144,7 +144,9 @@ function toItalicText(text: string): string {
 export function latexToUnicodeMath(latex: string): string {
     if (!latex) return '';
 
-    let result = latex;
+    // Normalize backslashes: marked-katex may output double backslashes (\\command)
+    // Convert them to single backslashes for consistent processing
+    let result = latex.replace(/\\\\/g, '\\');
 
     // Replace Greek letters
     for (const [cmd, unicode] of Object.entries(GREEK_LETTERS)) {
