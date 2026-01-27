@@ -7,6 +7,7 @@ import type {
   DocxDocumentOptions,
 } from '../../types';
 import { stripMathDelimiters } from '../math/MathText';
+import { latexToUnicodeMath } from '../math/UnicodeMathConverter';
 import { MermaidRenderer } from './MermaidRenderer';
 
 export class DocxConverter {
@@ -434,12 +435,16 @@ export class DocxConverter {
     const raw = token.raw || '';
     const text = token.text || stripMathDelimiters(raw);
 
-    if (options.math.output === 'latex') {
-      const isBlock = token.type === 'math' || token.type === 'blockKatex';
-      return raw || this.wrapMath(text, isBlock);
+    switch (options.math.output) {
+      case 'latex': {
+        const isBlock = token.type === 'math' || token.type === 'blockKatex';
+        return raw || this.wrapMath(text, isBlock);
+      }
+      case 'unicodemath':
+        return latexToUnicodeMath(text);
+      default:
+        return text;
     }
-
-    return text;
   }
 
   private wrapMath(latex: string, isBlock: boolean): string {

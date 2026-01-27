@@ -8,6 +8,7 @@ export interface PreprocessorConfig {
     removeCitations?: boolean;
     removeButtons?: boolean;
     trimWhitespace?: boolean;
+    sanitizeLatex?: boolean;
 }
 
 const DEFAULT_CONFIG: PreprocessorConfig = {
@@ -15,6 +16,7 @@ const DEFAULT_CONFIG: PreprocessorConfig = {
     removeCitations: true,
     removeButtons: true,
     trimWhitespace: true,
+    sanitizeLatex: true,
 };
 
 /**
@@ -83,6 +85,40 @@ function trimWhitespace(content: string): string {
 }
 
 /**
+ * Sanitize LaTeX from LLM output
+ * Fixes common issues like Unicode characters in math mode
+ */
+function sanitizeLLMLatex(content: string): string {
+    let cleaned = content;
+
+    // Replace Unicode ellipsis with LaTeX command in math mode
+    cleaned = cleaned.replace(/\$([^$]*?)…([^$]*?)\$/g, (_, before, after) =>
+        `$${before}\\ldots${after}$`);
+
+    // Replace block math Unicode ellipsis
+    cleaned = cleaned.replace(/\$\$([\s\S]*?)…([\s\S]*?)\$\$/g, (_, before, after) =>
+        `$$${before}\\ldots${after}$$`);
+
+    // Replace Unicode non-breaking spaces with regular spaces in math mode
+    cleaned = cleaned.replace(/\$([^$]*?)[\u00A0\u2003]([^$]*?)\$/g, (_, b, a) =>
+        `$${b} ${a}$`);
+
+    // Replace Unicode minus with ASCII minus in math mode
+    cleaned = cleaned.replace(/\$([^$]*?)−([^$]*?)\$/g, (_, b, a) =>
+        `$${b}-${a}$`);
+
+    // Replace Unicode multiplication sign with \times in math mode
+    cleaned = cleaned.replace(/\$([^$]*?)×([^$]*?)\$/g, (_, b, a) =>
+        `$${b}\\times${a}$`);
+
+    // Replace Unicode division sign with \div in math mode
+    cleaned = cleaned.replace(/\$([^$]*?)÷([^$]*?)\$/g, (_, b, a) =>
+        `$${b}\\div${a}$`);
+
+    return cleaned;
+}
+
+/**
  * Main preprocessing function
  */
 export function preprocessMarkdown(
@@ -105,6 +141,10 @@ export function preprocessMarkdown(
 
     if (config.trimWhitespace) {
         processed = trimWhitespace(processed);
+    }
+
+    if (config.sanitizeLatex) {
+        processed = sanitizeLLMLatex(processed);
     }
 
     return processed;

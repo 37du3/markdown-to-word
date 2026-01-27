@@ -10,6 +10,7 @@ export function MainView() {
     const [showSuccess, setShowSuccess] = useState(false);
     const [aiClean, setAiClean] = useState(true);
     const [showLineNumbers, setShowLineNumbers] = useState(true);
+    const [mathFormat, setMathFormat] = useState<'unicodemath' | 'latex'>('unicodemath');
 
     const { convertToHtml } = useConversion();
     const { paste, copy } = useClipboard();
@@ -46,7 +47,8 @@ export function MainView() {
         try {
             const processedContent = aiClean ? preprocessMarkdown(content) : content;
             const options = {
-                code: { showLineNumbers, theme: 'light' as const, fontFamily: 'JetBrains Mono', fontSize: 14 }
+                code: { showLineNumbers, theme: 'light' as const, fontFamily: 'JetBrains Mono', fontSize: 14 },
+                math: { output: mathFormat }
             };
 
             const htmlResult = await convertToHtml(processedContent, options);
@@ -55,7 +57,7 @@ export function MainView() {
             }
 
             // Auto copy to clipboard
-            await copy(htmlResult.html!, htmlResult.plainText!);
+            await copy(htmlResult.html, htmlResult.plainText);
             setShowSuccess(true);
         } catch (err) {
             console.error('Conversion failed:', err);
@@ -137,6 +139,17 @@ export function MainView() {
                         onChange={(e) => setShowLineNumbers(e.target.checked)}
                         className="toggle-switch"
                     />
+                </label>
+                <label className="option-row">
+                    <span>数学公式格式</span>
+                    <select
+                        value={mathFormat}
+                        onChange={(e) => setMathFormat(e.target.value as 'unicodemath' | 'latex')}
+                        className="format-select"
+                    >
+                        <option value="unicodemath">Word 可编辑</option>
+                        <option value="latex">LaTeX 原文</option>
+                    </select>
                 </label>
             </div>
 

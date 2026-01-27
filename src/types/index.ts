@@ -113,7 +113,7 @@ export interface ConversionOptions {
 
   // 数学公式配置
   math: {
-    output: 'katex' | 'latex' | 'text';
+    output: 'katex' | 'latex' | 'unicodemath' | 'text';
   };
 }
 
