@@ -51,7 +51,9 @@ temp_reference/
 # Test Files
 test_*.mjs
 test_*.ts
+test-*.ts
 test_*.js
+test-*.js
 *.test.mjs
 *.test.ts
 
@@ -61,3 +63,4 @@ test_*.js
 *.swo
 *~
 dist-extension/
+*.zip
