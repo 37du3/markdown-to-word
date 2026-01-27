@@ -14,7 +14,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "package:ext": "npm run build:ext && zip -r extension.zip dist-extension"
   },
   "dependencies": {
     "clsx": "^2.1.0",
