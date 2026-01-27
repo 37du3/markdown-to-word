@@ -58,6 +58,7 @@ export function App() {
   const [lastCopied, setLastCopied] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(true);
   const [cleanAIContent, setCleanAIContent] = useState(true);
+  const [mathFormat, setMathFormat] = useState<'unicodemath' | 'latex'>('unicodemath');
 
   const { convertToHtml, convertToDocx, calculateStats, copy } = useConversion();
 
@@ -80,6 +81,7 @@ export function App() {
       const processedMarkdown = cleanAIContent ? preprocessMarkdown(markdown) : markdown;
 
       const result = await convertToHtml(processedMarkdown, {
+        math: { output: mathFormat },
         code: {
           showLineNumbers,
           theme: 'light',
@@ -103,7 +105,7 @@ export function App() {
     } finally {
       setIsConverting(false);
     }
-  }, [calculateStats, convertToHtml, showLineNumbers]);
+  }, [calculateStats, convertToHtml, showLineNumbers, mathFormat, cleanAIContent]);
 
   // 监听防抖后的输入变化
   React.useEffect(() => {
@@ -116,9 +118,9 @@ export function App() {
 
     try {
       // const keepLatex = window.confirm('是否保留 LaTeX 格式？点击“确定”保留，点击“取消”转换为普通文本。');
-      const mathOutput = 'latex';
+      // const mathOutput = 'latex';
       const htmlResult = await convertToHtml(input, {
-        math: { output: mathOutput },
+        math: { output: mathFormat },
         code: {
           showLineNumbers: false,
           theme: 'light',
@@ -153,8 +155,8 @@ export function App() {
     try {
       const { saveAs } = await import('file-saver');
       // const keepLatex = window.confirm('是否保留 LaTeX 格式？点击“确定”保留，点击“取消”转换为普通文本。');
-      const mathOutput = 'latex'; // Always keep latex, optimized by MathProcessor
-      const result = await convertToDocx(input, { math: { output: mathOutput } });
+      // const mathOutput = 'latex'; // Always keep latex, optimized by MathProcessor
+      const result = await convertToDocx(input, { math: { output: mathFormat } });
 
       if (result.success && result.docx) {
         saveAs(result.docx, 'converted-document.docx');
@@ -223,6 +225,7 @@ export function App() {
               <h2 className="text-sm font-medium text-gray-700">Word 预览</h2>
             </div>
             <div className="flex items-center gap-3">
+
               <button
                 type="button"
                 className={`text-xs px-2 py-1 rounded border ${cleanAIContent
@@ -235,6 +238,15 @@ export function App() {
               >
                 AI清洗
               </button>
+              <select
+                className="text-xs px-2 py-1 rounded border bg-white text-gray-700 border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                value={mathFormat}
+                onChange={(e) => setMathFormat(e.target.value as 'unicodemath' | 'latex')}
+                title="选择数学公式输出格式"
+              >
+                <option value="unicodemath">Word公式</option>
+                <option value="latex">LaTeX原文</option>
+              </select>
               <button
                 type="button"
                 className={`text-xs px-2 py-1 rounded border ${showLineNumbers
