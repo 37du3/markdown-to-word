@@ -22,7 +22,10 @@ export class MarkdownParser {
       breaks: true,
       pedantic: false,
     });
-    this.marked.use(markedKatex({ throwOnError: false }));
+    this.marked.use(markedKatex({
+      throwOnError: false,
+      nonStandard: true  // Required to parse inline math $...$
+    }));
   }
 
   parse(markdown: string): MarkdownAST {

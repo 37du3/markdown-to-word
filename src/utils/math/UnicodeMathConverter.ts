@@ -199,12 +199,18 @@ export function latexToUnicodeMath(latex: string): string {
     // Handle subscripts: _{abc} -> convert to Unicode subscripts where possible
     result = result.replace(/_{([^{}]*)}/g, (_: string, content: string) => {
         return Array.from(content)
-            .map((c: string) => SUBSCRIPTS[c] || `_${c}`)
+            .map((c: string) => {
+                // Use Unicode subscript if available
+                if (SUBSCRIPTS[c]) return SUBSCRIPTS[c];
+                // For letters/numbers not in map, use normal char followed by combining subscript
+                // Note: Word may not render combining marks perfectly, but it's better than nothing
+                return c + '\u0332'; // Combining low line as approximation
+            })
             .join('');
     });
 
     // Handle simple subscripts: _2 -> ₂
-    result = result.replace(/_([0-9])/g, (_: string, c: string) => SUBSCRIPTS[c] || `_${c}`);
+    result = result.replace(/_([0-9a-zA-Z])/g, (_: string, c: string) => SUBSCRIPTS[c] || c + '\u0332');
 
     // Handle bold text: \mathbf{x} -> mathematical bold
     result = result.replace(/\\mathbf\s*\{([^{}]*)\}/g, (_: string, text: string) => toBoldText(text));

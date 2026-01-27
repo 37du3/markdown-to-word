@@ -3,6 +3,9 @@ task.md
 implementation_plan.md
 walkthrough.md
 
+# Local AI configuration (project-specific)
+.antigravity
+
 # Dependencies
 node_modules/
 
