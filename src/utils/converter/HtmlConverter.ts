@@ -77,14 +77,14 @@ export class HtmlConverter {
 
   private convertParagraph(token: MarkdownTokens, options: ConversionOptions): string {
     const text = this.convertInline(token.tokens || [], options);
-    return `<p style="font-size: ${options.text.fontSize}pt; line-height: ${options.text.lineHeight}; margin: 8pt 0; text-align: left; font-family: ${options.text.fontFamily};">${text}</p>`;
+    return `<p style="font-size: ${options.text.fontSize}pt; line-height: ${options.text.lineHeight}; margin: 8pt 0; text-align: left; font-family: ${options.text.fontFamily}; font-weight: normal;">${text}</p>`;
   }
 
   private convertList(token: MarkdownTokens, options: ConversionOptions): string {
     const tag = token.ordered ? 'ol' : 'ul';
     const items = token.items?.map((item) => {
       const content = this.convertInline(item.tokens || [], options);
-      return `<li style="margin: 4pt 0; font-family: ${options.text.fontFamily};">${content}</li>`;
+      return `<li style="margin: 4pt 0; font-family: ${options.text.fontFamily}; font-weight: normal;">${content}</li>`;
     }).join('') || '';
 
     return `<${tag} style="margin: 8pt 0; padding-left: 24pt;">${items}</${tag}>`;
@@ -92,7 +92,7 @@ export class HtmlConverter {
 
   private convertBlockquote(token: MarkdownTokens, options: ConversionOptions): string {
     const text = this.convertInline(token.tokens || [], options);
-    return `<blockquote style="border-left: 3px solid #e5e7eb; padding-left: 12pt; margin: 12pt 0; font-family: ${options.text.fontFamily};">${text}</blockquote>`;
+    return `<blockquote style="border-left: 3px solid #e5e7eb; padding-left: 12pt; margin: 12pt 0; font-family: ${options.text.fontFamily}; font-weight: normal;">${text}</blockquote>`;
   }
 
   private convertLink(token: MarkdownTokens, options: ConversionOptions): string {
