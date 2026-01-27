@@ -3,6 +3,7 @@ import { TableConverter } from './TableConverter';
 import { CodeBlockConverter } from './CodeBlockConverter';
 import katex from 'katex';
 import { stripMathDelimiters } from '../math/MathText';
+import { latexToUnicodeMath } from '../math/UnicodeMathConverter';
 
 export class HtmlConverter {
   private tableConverter: TableConverter;
@@ -76,7 +77,7 @@ export class HtmlConverter {
 
   private convertParagraph(token: MarkdownTokens, options: ConversionOptions): string {
     const text = this.convertInline(token.tokens || [], options);
-    return `<p style="font-size: ${options.text.fontSize}pt; line-height: ${options.text.lineHeight}; margin: 8pt 0; text-align: justify; font-family: ${options.text.fontFamily};">${text}</p>`;
+    return `<p style="font-size: ${options.text.fontSize}pt; line-height: ${options.text.lineHeight}; margin: 8pt 0; text-align: left; font-family: ${options.text.fontFamily};">${text}</p>`;
   }
 
   private convertList(token: MarkdownTokens, options: ConversionOptions): string {
@@ -117,6 +118,10 @@ export class HtmlConverter {
 
     if (options.math.output === 'latex') {
       return `<span>${token.raw || this.wrapMath(latexSource, isBlock)}</span>`;
+    }
+
+    if (options.math.output === 'unicodemath') {
+      return `<span>${latexToUnicodeMath(latexSource)}</span>`;
     }
 
     return `<span>${stripMathDelimiters(this.wrapMath(latexSource, isBlock))}</span>`;

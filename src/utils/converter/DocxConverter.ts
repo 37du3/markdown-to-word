@@ -155,7 +155,7 @@ export class DocxConverter {
         after: 120,
         line: 240 * options.text.lineHeight,
       },
-      alignment: "both",
+      alignment: "left",
       indent: indentLevel > 0 ? { left: 720 * indentLevel } : undefined,
     });
   }
