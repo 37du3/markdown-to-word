@@ -1,7 +1,7 @@
 {
   "name": "markdown-to-word",
   "private": true,
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "一个纯前端的 Markdown 转 Word 格式转换工具，支持表格、代码块等复杂格式的完美转换",
   "type": "module",
   "scripts": {

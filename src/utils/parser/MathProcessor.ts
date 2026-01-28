@@ -33,8 +33,9 @@ export class MathProcessor {
 
         // Convert \[...\] to $$...$$ (block math)
         // Use [\s\S]*? to match content including newlines (non-greedy)
+        // Add double newlines to ensure it's recognized as a block element by marked
         result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_, content: string) => {
-            return `$$${content}$$`;
+            return `\n\n$$${content}$$\n\n`;
         });
 
         // Convert \(...\) to $...$ (inline math)
