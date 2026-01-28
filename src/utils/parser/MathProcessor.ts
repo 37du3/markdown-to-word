@@ -7,6 +7,10 @@ export class MathProcessor {
 
         let processed = markdown;
 
+        // 0. Convert LaTeX standard delimiters to dollar signs
+        // This handles \[...\] and \(...\) from AI outputs like DeepSeek
+        processed = this.convertLatexDelimiters(processed);
+
         // 1. Fix inline math spaces ($ L $ -> $L$)
         processed = this.fixInlineMathSpaces(processed);
 
@@ -14,6 +18,31 @@ export class MathProcessor {
         processed = this.fixSingleDollarBlocks(processed);
 
         return processed;
+    }
+
+    /**
+     * Convert LaTeX standard math delimiters to dollar sign format
+     * \[...\] -> $$...$$  (display/block math)
+     * \(...\) -> $...$    (inline math)
+     * 
+     * Many AI models (DeepSeek, etc.) output formulas using LaTeX standard notation,
+     * but marked-katex-extension only supports dollar sign notation.
+     */
+    private static convertLatexDelimiters(text: string): string {
+        let result = text;
+
+        // Convert \[...\] to $$...$$ (block math)
+        // Use [\s\S]*? to match content including newlines (non-greedy)
+        result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_, content: string) => {
+            return `$$${content}$$`;
+        });
+
+        // Convert \(...\) to $...$ (inline math)
+        result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_, content: string) => {
+            return `$${content}$`;
+        });
+
+        return result;
     }
 
     /**
