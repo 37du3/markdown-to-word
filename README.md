@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="file:///Users/yangming/.gemini/antigravity/brain/20c575f3-ce29-40b5-a64e-7fc65d7f6c9f/readme_hero_banner_1769089819957.png" alt="Markdown to Word Banner" width="800">
+  <img src="docs/images/banner.png" alt="Markdown to Word Banner" width="800">
 </p>
 
 # ✨ Markdown to Word (MD2Word)
