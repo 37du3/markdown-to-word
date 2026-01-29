@@ -117,6 +117,9 @@ export class DocxConverter {
         return Array.isArray(tableResult) ? tableResult : [tableResult];
       case 'blockquote':
         return this.convertBlockquote(token, options, indentLevel);
+      case 'blockKatex':
+      case 'math':
+        return [this.convertBlockMath(token, options, indentLevel)];
       default:
         return [];
     }
@@ -429,6 +432,25 @@ export class DocxConverter {
       }
     }
     return results;
+  }
+
+  private convertBlockMath(token: MarkdownTokens, options: ConversionOptions, indentLevel: number = 0): Paragraph {
+    const text = this.convertMathText(token, options);
+    return new Paragraph({
+      children: [
+        new TextRun({
+          text,
+          font: options.text.fontFamily,
+          size: options.text.fontSize * 2,
+        })
+      ],
+      alignment: "center",
+      indent: indentLevel > 0 ? { left: 720 * indentLevel } : undefined,
+      spacing: {
+        before: 120,
+        after: 120,
+      },
+    });
   }
 
   private convertMathText(token: MarkdownTokens, options: ConversionOptions): string {
