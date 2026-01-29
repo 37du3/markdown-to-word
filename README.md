@@ -41,9 +41,7 @@
 
 ## 📸 演示效果
 
-*(此处可以插入您的录制视频或更多演示图)*
-
-![Preview Demo](file:///Users/yangming/.gemini/antigravity/brain/20c575f3-ce29-40b5-a64e-7fc65d7f6c9f/readme_hero_banner_1769089819957.png)
+![Preview Demo](docs/images/demo-preview.png)
 
 ---
 

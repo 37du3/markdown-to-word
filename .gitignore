@@ -44,8 +44,7 @@ tests/
 .claude/
 
 # Deprecated/Archive
-docs/
-ui-ux-pro-max-skill/
+# ui-ux-pro-max-skill/
 temp_reference/
 
 # Test Files
